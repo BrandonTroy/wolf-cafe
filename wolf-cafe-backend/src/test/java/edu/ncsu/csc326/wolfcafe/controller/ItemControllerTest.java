@@ -1,26 +1,30 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 
+import edu.ncsu.csc326.wolfcafe.TestUtils;
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
-import edu.ncsu.csc326.wolfcafe.service.ItemService;
+import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 
 /**
  * Tests for ItemController, including creating and getting items
@@ -36,10 +40,10 @@ public class ItemControllerTest {
     private MockMvc                   mvc;
 
     /**
-     * Connection to itemService to set the id it will return
+     * Connection to the database to delete items
      */
-    @MockBean
-    private ItemService               itemService;
+    @Autowired
+    private ItemRepository            itemRepository;
 
     /**
      * Used to convert objects to Json
@@ -68,6 +72,15 @@ public class ItemControllerTest {
     private static final double       ITEM_PRICE       = 3.25;
 
     /**
+     * Sets up testing environment by deleting all existing items to avoid
+     * duplicate names
+     */
+    @BeforeEach
+    public void setUp () {
+        itemRepository.deleteAll();
+    }
+
+    /**
      * Test for creating a new item with a POST request
      *
      * @throws Exception
@@ -82,16 +95,10 @@ public class ItemControllerTest {
         itemDto.setDescription( ITEM_DESCRIPTION );
         itemDto.setPrice( ITEM_PRICE );
 
-        Mockito.when( itemService.addItem( ArgumentMatchers.any() ) ).thenReturn( itemDto );
-
         final String json = MAPPER.writeValueAsString( itemDto );
-
-        // Set id for the response
-        itemDto.setId( 57L );
 
         mvc.perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
                 .content( json ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isCreated() )
-                .andExpect( jsonPath( "$.id", Matchers.equalTo( 57 ) ) )
                 .andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
@@ -111,12 +118,7 @@ public class ItemControllerTest {
         itemDto.setDescription( ITEM_DESCRIPTION );
         itemDto.setPrice( ITEM_PRICE );
 
-        Mockito.when( itemService.addItem( ArgumentMatchers.any() ) ).thenReturn( itemDto );
-
         final String json = MAPPER.writeValueAsString( itemDto );
-
-        // Set id for the response
-        itemDto.setId( 57L );
 
         mvc.perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
                 .content( json ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isUnauthorized() );
@@ -132,19 +134,103 @@ public class ItemControllerTest {
     @WithMockUser ( username = "staff", roles = "STAFF" )
     public void testGetItemById () throws Exception {
         final ItemDto itemDto = new ItemDto();
-        itemDto.setId( 27L );
         itemDto.setName( ITEM_NAME );
         itemDto.setDescription( ITEM_DESCRIPTION );
         itemDto.setPrice( ITEM_PRICE );
 
-        Mockito.when( itemService.getItem( ArgumentMatchers.any() ) ).thenReturn( itemDto );
         final String json = "";
 
-        mvc.perform( get( API_PATH + "/27" ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
-                .content( json ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isOk() )
-                .andExpect( jsonPath( "$.id", Matchers.equalTo( 27 ) ) )
+        final Long itemId = JsonPath.parse( mvc
+                .perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
+                        .content( TestUtils.asJsonString( itemDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isCreated() ).andReturn().getResponse().getContentAsString() )
+                .read( "$.id", Long.class );
+
+        mvc.perform( get( API_PATH + "/" + itemId ).contentType( MediaType.APPLICATION_JSON )
+                .characterEncoding( ENCODING ).content( json ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() ).andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
+                .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
+                .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+    }
+
+    /**
+     * Tests get on the items endpoint with no items
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @WithMockUser ( username = "staff", roles = "STAFF" )
+    public void testGetItems () throws Exception {
+        final String items = mvc.perform( get( API_PATH ) ).andDo( print() ).andExpect( status().isOk() ).andReturn()
+                .getResponse().getContentAsString();
+        assertEquals( "[]", items );
+    }
+
+    /**
+     * Tests delete on the items endpoint, by creating an item and then calling
+     * the endpoint to delete the item
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @WithMockUser ( username = "staff", roles = "STAFF" )
+    public void testDeleteItem () throws Exception {
+        final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
+
+        final Long itemId = JsonPath.parse( mvc
+                .perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
+                        .content( TestUtils.asJsonString( itemDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isCreated() ).andReturn().getResponse().getContentAsString() )
+                .read( "$.id", Long.class );
+
+        mvc.perform( get( API_PATH + "/" + itemId ).contentType( MediaType.APPLICATION_JSON )
+                .characterEncoding( ENCODING ).content( "" ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() ).andExpect( jsonPath( "$.id" ).value( itemId ) )
                 .andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+
+        mvc.perform( delete( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() );
+
+        // Verify the old item id no longer exists
+        mvc.perform( get( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
+    }
+
+    /**
+     * Tests updating an item through a put call, by creating an item, updating
+     * it, and then calling the endpoint to get the updated item
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @WithMockUser ( username = "staff", roles = "STAFF" )
+    public void testUpdateItem () throws Exception {
+        // Create initial item
+        final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
+
+        final Long itemId = JsonPath.parse( mvc
+                .perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
+                        .content( TestUtils.asJsonString( itemDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isCreated() ).andReturn().getResponse().getContentAsString() )
+                .read( "$.id", Long.class );
+
+        // Update item
+        final ItemDto updatedItemDto = new ItemDto( itemId, "Mocha", "idk what a Mocha is I don't drink coffee",
+                19.99 );
+
+        mvc.perform( put( API_PATH + "/" + itemId ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( updatedItemDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() );
+
+        // Verify updated item
+        mvc.perform( get( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( itemId ) ).andExpect( jsonPath( "$.name" ).value( "Mocha" ) )
+                .andExpect( jsonPath( "$.description" ).value( "idk what a Mocha is I don't drink coffee" ) )
+                .andExpect( jsonPath( "$.price" ).value( 19.99 ) );
     }
 }
