@@ -1,16 +1,19 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
-import edu.ncsu.csc326.wolfcafe.entity.Item;
-import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
-import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
-import edu.ncsu.csc326.wolfcafe.service.ItemService;
-import lombok.AllArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
+import edu.ncsu.csc326.wolfcafe.entity.InventoryEntry;
+import edu.ncsu.csc326.wolfcafe.entity.Item;
+import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
+import edu.ncsu.csc326.wolfcafe.repository.InventoryRepository;
+import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
+import edu.ncsu.csc326.wolfcafe.service.ItemService;
+import lombok.AllArgsConstructor;
 
 /**
  * Implemented item service
@@ -19,9 +22,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
+    private final InventoryRepository inventoryRepository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     /**
 	 * Adds given item
@@ -32,6 +36,11 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addItem(ItemDto itemDto) {
         Item item = modelMapper.map(itemDto, Item.class);
         Item savedItem = itemRepository.save(item);
+
+        // Add an inventory entry with 0 quantity by default
+        InventoryEntry entry = new InventoryEntry(savedItem, 0);
+        inventoryRepository.save(entry);
+
         return modelMapper.map(savedItem, ItemDto.class);
     }
 
