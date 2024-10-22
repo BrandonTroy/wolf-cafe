@@ -1,6 +1,9 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import lombok.AllArgsConstructor;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,10 +23,7 @@ import edu.ncsu.csc326.wolfcafe.repository.RoleRepository;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.security.JwtTokenProvider;
 import edu.ncsu.csc326.wolfcafe.service.AuthService;
-
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import lombok.AllArgsConstructor;
 
 /**
  * Implemented AuthService
@@ -32,89 +32,109 @@ import java.util.Set;
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
-    private AuthenticationManager authenticationManager;
-    private JwtTokenProvider jwtTokenProvider;
+    /**
+     * Connection to the database table storing users
+     */
+    private final UserRepository        userRepository;
+    /**
+     * Connection to the database table storing roles
+     */
+    private final RoleRepository        roleRepository;
+    /**
+     * Tool to encrypt passwords for security
+     */
+    private final PasswordEncoder       passwordEncoder;
+    /**
+     * Processes authentication requests
+     */
+    private final AuthenticationManager authenticationManager;
+    /**
+     * Generates tokens for JWT authentication
+     */
+    private final JwtTokenProvider      jwtTokenProvider;
 
     /**
-	 * Registers the given user
-	 * @param registerDto new user information
-	 * @return message for success or failure
-	 */
+     * Registers the given user
+     *
+     * @param registerDto
+     *            new user information
+     * @return message for success or failure
+     */
     @Override
-    public String register(RegisterDto registerDto) {
+    public String register ( final RegisterDto registerDto ) {
         // Check for duplicates - username
-        if(userRepository.existsByUsername(registerDto.getUsername())) {
-            throw new WolfCafeAPIException(HttpStatus.BAD_REQUEST, "Username already exists.");
+        if ( userRepository.existsByUsername( registerDto.getUsername() ) ) {
+            throw new WolfCafeAPIException( HttpStatus.BAD_REQUEST, "Username already exists." );
         }
         // Check for duplicates - email
-        if(userRepository.existsByEmail(registerDto.getEmail())) {
-            throw new WolfCafeAPIException(HttpStatus.BAD_REQUEST, "Email already exists.");
+        if ( userRepository.existsByEmail( registerDto.getEmail() ) ) {
+            throw new WolfCafeAPIException( HttpStatus.BAD_REQUEST, "Email already exists." );
         }
 
-        User user = new User();
-        user.setName(registerDto.getName());
-        user.setUsername(registerDto.getUsername());
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        final User user = new User();
+        user.setName( registerDto.getName() );
+        user.setUsername( registerDto.getUsername() );
+        user.setEmail( registerDto.getEmail() );
+        user.setPassword( passwordEncoder.encode( registerDto.getPassword() ) );
 
-        Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName("ROLE_CUSTOMER");
-        roles.add(userRole);
+        final Set<Role> roles = new HashSet<>();
+        final Role userRole = roleRepository.findByName( "ROLE_CUSTOMER" );
+        roles.add( userRole );
 
-        user.setRoles(roles);
+        user.setRoles( roles );
 
-        userRepository.save(user);
+        userRepository.save( user );
 
         return "User registered successfully.";
     }
 
     /**
      * Logins in the given user
-     * @param loginDto username/email and password
+     *
+     * @param loginDto
+     *            username/email and password
      * @return response with authenticated user
      */
     @Override
-    public JwtAuthResponse login(LoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsernameOrEmail(),
-                loginDto.getPassword()
-        ));
+    public JwtAuthResponse login ( final LoginDto loginDto ) {
+        final Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken( loginDto.getUsernameOrEmail(), loginDto.getPassword() ) );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication( authentication );
 
-        String token = jwtTokenProvider.generateToken(authentication);
+        final String token = jwtTokenProvider.generateToken( authentication );
 
-        Optional<User> userOptional = userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(), loginDto.getUsernameOrEmail());
+        final Optional<User> userOptional = userRepository.findByUsernameOrEmail( loginDto.getUsernameOrEmail(),
+                loginDto.getUsernameOrEmail() );
 
         String role = null;
-        if (userOptional.isPresent()) {
-            User loggedInUser = userOptional.get();
-            Optional<Role> optionalRole = loggedInUser.getRoles().stream().findFirst();
+        if ( userOptional.isPresent() ) {
+            final User loggedInUser = userOptional.get();
+            final Optional<Role> optionalRole = loggedInUser.getRoles().stream().findFirst();
 
-            if (optionalRole.isPresent()) {
-                Role userRole = optionalRole.get();
+            if ( optionalRole.isPresent() ) {
+                final Role userRole = optionalRole.get();
                 role = userRole.getName();
             }
         }
 
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-        jwtAuthResponse.setRole(role);
-        jwtAuthResponse.setAccessToken(token);
+        final JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+        jwtAuthResponse.setRole( role );
+        jwtAuthResponse.setAccessToken( token );
 
         return jwtAuthResponse;
     }
 
     /**
      * Deletes the given user by id
-     * @param id id of user to delete
+     *
+     * @param id
+     *            id of user to delete
      */
-	@Override
-	public void deleteUserById(Long id) {
-		userRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
-		userRepository.deleteById(id);
-	}
+    @Override
+    public void deleteUserById ( final Long id ) {
+        userRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "User not found with id " + id ) );
+        userRepository.deleteById( id );
+    }
 }
