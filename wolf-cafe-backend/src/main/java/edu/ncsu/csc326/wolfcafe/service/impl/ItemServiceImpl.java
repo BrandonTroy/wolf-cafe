@@ -16,15 +16,26 @@ import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import lombok.AllArgsConstructor;
 
 /**
- * Implemented item service
+ * Implementation for ItemService
  */
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
+    /**
+     * Connection to ItemRepository for dealing with the items table in the
+     * database
+     */
     private final ItemRepository      itemRepository;
+    /**
+     * Connection to InventoryRepository for dealing with the inventory table in
+     * the database
+     */
     private final InventoryRepository inventoryRepository;
 
+    /**
+     * Performs object mapping from entities to dtos
+     */
     private final ModelMapper         modelMapper;
 
     /**

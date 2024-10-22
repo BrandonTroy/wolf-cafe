@@ -25,62 +25,65 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
 
     /** Repository for item operations */
-    private final ItemRepository itemRepository;
+    private final ItemRepository      itemRepository;
 
-    private final InventoryMapper inventoryMapper;
+    /**
+     * Mapper for wrapping inventory entries up into a dto
+     */
+    private final InventoryMapper     inventoryMapper;
 
     /**
      * Constructs a new InventoryServiceImpl with required repositories.
      *
-     * @param inventoryRepository repository for inventory operations
-     * @param itemRepository repository for item operations
+     * @param inventoryRepository
+     *            repository for inventory operations
+     * @param itemRepository
+     *            repository for item operations
+     * @param inventoryMapper
+     *            mapper to use for converting to InventoryDto
      */
     @Autowired
-    public InventoryServiceImpl(InventoryRepository inventoryRepository, ItemRepository itemRepository, InventoryMapper inventoryMapper) {
+    public InventoryServiceImpl ( final InventoryRepository inventoryRepository, final ItemRepository itemRepository,
+            final InventoryMapper inventoryMapper ) {
         this.inventoryRepository = inventoryRepository;
         this.itemRepository = itemRepository;
         this.inventoryMapper = inventoryMapper;
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public InventoryDto getInventory() {
-        List<InventoryEntry> entries = inventoryRepository.findAll();
-        return inventoryMapper.toDto(entries);
+    @Transactional ( readOnly = true )
+    public InventoryDto getInventory () {
+        final List<InventoryEntry> entries = inventoryRepository.findAll();
+        return inventoryMapper.toDto( entries );
     }
 
     @Override
     @Transactional
-    public InventoryDto addInventory(InventoryDto inventoryDto) {
-        if (inventoryDto == null || inventoryDto.getItemQuantities() == null) {
-            throw new IllegalArgumentException("Inventory DTO cannot be null");
+    public InventoryDto addInventory ( final InventoryDto inventoryDto ) {
+        if ( inventoryDto == null || inventoryDto.getItemQuantities() == null ) {
+            throw new IllegalArgumentException( "Inventory DTO cannot be null" );
         }
 
-        for (Map.Entry<Long, Integer> entry : inventoryDto.getItemQuantities().entrySet()) {
-            Long itemId = entry.getKey();
-            Integer quantityToAdd = entry.getValue();
+        for ( final Map.Entry<Long, Integer> entry : inventoryDto.getItemQuantities().entrySet() ) {
+            final Long itemId = entry.getKey();
+            final Integer quantityToAdd = entry.getValue();
 
-            if (quantityToAdd < 0) {
-                throw new IllegalArgumentException(
-                    "Cannot add negative quantity for item ID: " + itemId);
+            if ( quantityToAdd < 0 ) {
+                throw new IllegalArgumentException( "Cannot add negative quantity for item ID: " + itemId );
             }
 
-            Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                    "Item not found with ID: " + itemId));
+            final Item item = itemRepository.findById( itemId )
+                    .orElseThrow( () -> new IllegalArgumentException( "Item not found with ID: " + itemId ) );
 
-            inventoryRepository.findByItemId(itemId).ifPresentOrElse(
-                inventory -> {
-                    inventory.setQuantity(inventory.getQuantity() + quantityToAdd);
-                    inventoryRepository.save(inventory);
-                },
-                () -> {
-                    InventoryEntry newEntry = new InventoryEntry();
-                    newEntry.setItem(item);
-                    newEntry.setQuantity(quantityToAdd);
-                    inventoryRepository.save(newEntry);
-                }
-            );
+            inventoryRepository.findByItemId( itemId ).ifPresentOrElse( inventory -> {
+                inventory.setQuantity( inventory.getQuantity() + quantityToAdd );
+                inventoryRepository.save( inventory );
+            }, () -> {
+                final InventoryEntry newEntry = new InventoryEntry();
+                newEntry.setItem( item );
+                newEntry.setQuantity( quantityToAdd );
+                inventoryRepository.save( newEntry );
+            } );
         }
 
         return getInventory();
