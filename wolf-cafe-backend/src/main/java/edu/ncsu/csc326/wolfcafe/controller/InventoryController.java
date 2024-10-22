@@ -1,6 +1,7 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,14 +16,13 @@ import edu.ncsu.csc326.wolfcafe.service.InventoryService;
 import lombok.AllArgsConstructor;
 
 /**
- * Controller for CoffeeMaker's inventory. The inventory is a singleton; there's
- * only one row in the database that contains the current inventory for the
- * system.
+ * Controller for WolfCafe's inventory. The inventory is a table mapping items
+ * to the quantity available.
  */
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping ( "/api/inventory" )
 @AllArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin ( "*" )
 public class InventoryController {
 
     /**
@@ -32,30 +32,34 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     /**
-     * REST API endpoint to provide GET access to the CoffeeMaker's singleton
-     * Inventory.
+     * REST API endpoint to provide GET access to the WolfCafe's inventory.
      *
      * @return response to the request
      */
     @GetMapping
     public ResponseEntity<InventoryDto> getInventory () {
         final InventoryDto inventoryDto = inventoryService.getInventory();
-        return ResponseEntity.ok(inventoryDto);
+        return ResponseEntity.ok( inventoryDto );
     }
 
     /**
-     * REST API endpoint to provide update access to the CoffeeMaker's singleton
-     * Inventory.
+     * REST API endpoint to provide update access to the WolfCafe's inventory.
      *
      * @param inventoryDto
      *            amounts to add to inventory
      * @return response to the request
      */
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize ( "hasRole('STAFF')" )
     @PutMapping
-    public ResponseEntity<InventoryDto> updateInventory (@RequestBody InventoryDto inventoryDto) {
-        final InventoryDto savedInventoryDto = inventoryService.addInventory(inventoryDto);
-        return ResponseEntity.ok(savedInventoryDto);
+    public ResponseEntity<InventoryDto> updateInventory ( @RequestBody final InventoryDto inventoryDto ) {
+        final InventoryDto savedInventoryDto;
+        try {
+            savedInventoryDto = inventoryService.addInventory( inventoryDto );
+        }
+        catch ( final IllegalArgumentException e ) {
+            return new ResponseEntity<InventoryDto>( inventoryDto, HttpStatus.BAD_REQUEST );
+        }
+        return ResponseEntity.ok( savedInventoryDto );
     }
 
 }
