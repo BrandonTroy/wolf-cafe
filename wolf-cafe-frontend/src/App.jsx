@@ -1,12 +1,14 @@
 import './App.css'
-import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { isUserLoggedIn } from './services/AuthService'
+import LoginComponent from './components/LoginComponent'
+import RegisterComponent from './components/RegisterComponent'
 import HeaderComponent from './components/HeaderComponent'
 import FooterComponent from './components/FooterComponent'
 import ListItemsComponent from './components/ListItemsComponent'
 import ItemComponent from './components/ItemComponent'
-import RegisterComponent from './components/RegisterComponent'
-import LoginComponent from './components/LoginComponent'
-import { isUserLoggedIn } from './services/AuthService'
+import InventoryComponent from './components/InventoryComponent'
+import OrderComponent from './components/OrderComponent'
 
 function App() {
 
@@ -29,6 +31,8 @@ function App() {
         <Route path='/items' element={<AuthenticatedRoute><ListItemsComponent /></AuthenticatedRoute>}></Route>
         <Route path='/add-item' element={<AuthenticatedRoute><ItemComponent /></AuthenticatedRoute>}></Route>
         <Route path='/update-item/:id' element={<AuthenticatedRoute><ItemComponent /></AuthenticatedRoute>}></Route>
+        <Route path='/inventory' element={<AuthenticatedRoute><InventoryComponent /></AuthenticatedRoute>}></Route>
+        <Route path='/order' element={<AuthenticatedRoute><OrderComponent /></AuthenticatedRoute>}></Route>
       </Routes>
       <FooterComponent />
       </BrowserRouter>

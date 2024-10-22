@@ -24,14 +24,19 @@ const HeaderComponent = () => {
             </a>
           </div>
           <div className='collapse navbar-collapse'>
-            <ul className='navbar-nav'>
             {
-              isAuth &&
-              <li className='nav-item'>
-                <NavLink to='/items' className='nav-link'>Items</NavLink>
-              </li>
-            }
-            </ul>
+              isAuth &&<ul className='navbar-nav'>
+                <li className='nav-item'>
+                  <NavLink to='/items' className='nav-link'>Items</NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/inventory' className='nav-link'>Inventory</NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/order' className='nav-link'>Order</NavLink>
+                </li>
+              </ul>
+            } 
           </div>
           <ul className='navbar-nav'>
             {
