@@ -22,75 +22,85 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepository itemRepository;
+    private final ItemRepository      itemRepository;
     private final InventoryRepository inventoryRepository;
 
-    private final ModelMapper modelMapper;
+    private final ModelMapper         modelMapper;
 
     /**
-	 * Adds given item
-	 * @param itemDto item to add
-	 * @return added item
-	 */
+     * Adds given item
+     *
+     * @param itemDto
+     *            item to add
+     * @return added item
+     */
     @Override
-    public ItemDto addItem(ItemDto itemDto) {
-        Item item = modelMapper.map(itemDto, Item.class);
-        Item savedItem = itemRepository.save(item);
+    public ItemDto addItem ( final ItemDto itemDto ) {
+        final Item item = modelMapper.map( itemDto, Item.class );
+        final Item savedItem = itemRepository.save( item );
 
         // Add an inventory entry with 0 quantity by default
-        InventoryEntry entry = new InventoryEntry(savedItem, 0);
-        inventoryRepository.save(entry);
+        final InventoryEntry entry = new InventoryEntry( savedItem, 0 );
+        inventoryRepository.save( entry );
 
-        return modelMapper.map(savedItem, ItemDto.class);
+        return modelMapper.map( savedItem, ItemDto.class );
     }
 
     /**
      * Gets item by id
-     * @param id id of item to get
+     *
+     * @param id
+     *            id of item to get
      * @return returned item
      */
     @Override
-    public ItemDto getItem(Long id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
-        return modelMapper.map(item, ItemDto.class);
+    public ItemDto getItem ( final Long id ) {
+        final Item item = itemRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "Item not found with id " + id ) );
+        return modelMapper.map( item, ItemDto.class );
     }
 
     /**
      * Returns all items
+     *
      * @return all items
      */
     @Override
-    public List<ItemDto> getAllItems() {
-        List<Item> items = itemRepository.findAll();
-        return items.stream().map((item) -> modelMapper.map(item, ItemDto.class)).collect(Collectors.toList());
+    public List<ItemDto> getAllItems () {
+        final List<Item> items = itemRepository.findAll();
+        return items.stream().map( ( item ) -> modelMapper.map( item, ItemDto.class ) ).collect( Collectors.toList() );
     }
 
     /**
      * Updates the item with the given id
-     * @param id id of item to update
-     * @param itemDto information of item to update
+     *
+     * @param id
+     *            id of item to update
+     * @param itemDto
+     *            information of item to update
      * @return updated item
      */
     @Override
-    public ItemDto updateItem(Long id, ItemDto itemDto) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setPrice(itemDto.getPrice());
-        Item updatedItem = itemRepository.save((item));
-        return modelMapper.map(updatedItem, ItemDto.class);
+    public ItemDto updateItem ( final Long id, final ItemDto itemDto ) {
+        final Item item = itemRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "Item not found with id " + id ) );
+        item.setName( itemDto.getName() );
+        item.setDescription( itemDto.getDescription() );
+        item.setPrice( itemDto.getPrice() );
+        final Item updatedItem = itemRepository.save( item );
+        return modelMapper.map( updatedItem, ItemDto.class );
     }
 
     /**
      * Deletes the item with the given id
-     * @param id id of item to delete
+     *
+     * @param id
+     *            id of item to delete
      */
     @Override
-    public void deleteItem(Long id) {
-        itemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id " + id));
-        itemRepository.deleteById(id);
+    public void deleteItem ( final Long id ) {
+        itemRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "Item not found with id " + id ) );
+        itemRepository.deleteById( id );
     }
 }
