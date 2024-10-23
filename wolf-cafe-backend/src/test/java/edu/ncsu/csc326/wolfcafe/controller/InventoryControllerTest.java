@@ -113,4 +113,40 @@ public class InventoryControllerTest {
                 .andExpect( status().isBadRequest() );
     }
 
+    /**
+     * Tests updating the inventory if the item exists but the inventory entry
+     * got deleted
+     *
+     * @throws Exception
+     *             if issue when running the test.
+     */
+    @Test
+    @Transactional
+    @WithMockUser ( username = "staff", roles = "STAFF" )
+    public void testUpdateInventoryNoEntry () throws Exception {
+        itemRepository.deleteAll();
+        inventoryRepository.deleteAll();
+        final InventoryDto expectedInventory = new InventoryDto();
+
+        final ItemDto newItem = itemService.addItem( new ItemDto( 0L, "Water", "H2O", 3.50 ) );
+        final ItemDto newItem2 = itemService.addItem( new ItemDto( 0L, "Coffee", "Brown liquid", 5.50 ) );
+        expectedInventory.getItemQuantities().put( newItem.getId(), 5 );
+        expectedInventory.getItemQuantities().put( newItem2.getId(), 3 );
+
+        inventoryRepository.deleteAll();
+
+        final InventoryDto updates = new InventoryDto();
+        updates.getItemQuantities().put( newItem2.getId(), 3 );
+        updates.getItemQuantities().put( newItem.getId(), 5 );
+        mvc.perform( put( "/api/inventory" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( updates ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().string( TestUtils.asJsonString( expectedInventory ) ) );
+
+        updates.getItemQuantities().put( newItem2.getId() + 1L, 3 );
+        mvc.perform( put( "/api/inventory" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( updates ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isBadRequest() );
+    }
+
 }
