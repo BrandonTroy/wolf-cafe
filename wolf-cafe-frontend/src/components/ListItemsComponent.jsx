@@ -13,15 +13,15 @@ const ListItemsComponent = () => {
 	const isAdmin = isAdminUser()
 	
 	useEffect(() => {
-	    listItems()
+	  listItems()
 	}, [])
 
 	function listItems() {
-	    getAllItems().then((response) => {
-	        setItems(response.data)
-	    }).catch(error => {
-	        console.error(error)
-	    })
+	  getAllItems().then((response) => {
+	    setItems(response.data)
+	  }).catch(error => {
+	    console.error(error)
+	  })
 	}
 	
 	function addNewItem() {
@@ -46,7 +46,7 @@ const ListItemsComponent = () => {
 	return (
 		<div className='container'>
 			<br /> <br />
-		    <h2 className='text-center'>Items</h2>
+		  <h2 className='text-center'>Items</h2>
 			{
 				isAdmin && 
 				<button className='btn btn-primary mb-2' onClick={addNewItem}>Add Item</button>

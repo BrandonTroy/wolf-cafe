@@ -1,14 +1,23 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
-import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
-import edu.ncsu.csc326.wolfcafe.service.ItemService;
-import lombok.AllArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
+import edu.ncsu.csc326.wolfcafe.service.ItemService;
+import lombok.AllArgsConstructor;
 
 /**
  * Controller for API endpoints for an Item
@@ -20,7 +29,7 @@ import java.util.List;
 public class ItemController {
 
 	/** Link to ItemService */
-    private ItemService itemService;
+    private final ItemService itemService;
 
     /**
      * Adds an item to the list of items.  Requires the STAFF role.

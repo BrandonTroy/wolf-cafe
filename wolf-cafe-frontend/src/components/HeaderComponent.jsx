@@ -8,53 +8,58 @@ const HeaderComponent = () => {
 	const isAuth = isUserLoggedIn()
 
 	function handleLogout() {
-	    logout()
-	    navigator('/login')
+	  logout()
+	  navigator('/login')
 	}
 
-    const navigator = useNavigate()
+  const navigator = useNavigate()
 
   return (
     <div>
-        <header>
-            <nav className='navbar navbar-expand-md navbar-dark bg-dark'>
-                <div>
-                    <a href='http://localhost:3000' className='navbar-brand'>
-                        WolfCafe
-                    </a>
-                </div>
-                <div className='collapse navbar-collapse'>
-					<ul className='navbar-nav'>
-					{
-						isAuth &&
-						<li className='nav-item'>
-							<NavLink to='/items' className='nav-link'>Items</NavLink>
-						</li>
-					}
-					</ul>
-				</div>
-				<ul className='navbar-nav'>
-                    {
-                        !isAuth && 
-                        <li className='nav-item'>
-                            <NavLink to='/register' className='nav-link'>Register</NavLink>
-                        </li>
-                    }
-                    {
-                        !isAuth &&
-                        <li className='nav-item'>
-                            <NavLink to='/login' className='nav-link'>Login</NavLink>
-                        </li>
-                    } 
-                    {
-                        isAuth &&
-                        <li className='nav-item'>
-                            <NavLink to='/login' className='nav-link' onClick={handleLogout}>Logout</NavLink>
-                        </li>
-                    }   
-                </ul>
-            </nav>
-        </header>
+      <header>
+        <nav className='navbar navbar-expand-md navbar-dark bg-dark'>
+          <div>
+            <a href='http://localhost:3000' className='navbar-brand'>
+              WolfCafe
+            </a>
+          </div>
+          <div className='collapse navbar-collapse'>
+            {
+              isAuth &&<ul className='navbar-nav'>
+                <li className='nav-item'>
+                  <NavLink to='/items' className='nav-link'>Items</NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/inventory' className='nav-link'>Inventory</NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/order' className='nav-link'>Order</NavLink>
+                </li>
+              </ul>
+            } 
+          </div>
+          <ul className='navbar-nav'>
+            {
+              !isAuth && 
+              <li className='nav-item'>
+                <NavLink to='/register' className='nav-link'>Register</NavLink>
+              </li>
+            }
+            {
+              !isAuth &&
+              <li className='nav-item'>
+                <NavLink to='/login' className='nav-link'>Login</NavLink>
+              </li>
+            } 
+            {
+              isAuth &&
+              <li className='nav-item'>
+                <NavLink to='/login' className='nav-link' onClick={handleLogout}>Logout</NavLink>
+              </li>
+            }   
+          </ul>
+        </nav>
+      </header>
     </div>
   )
 }
