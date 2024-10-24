@@ -1,11 +1,11 @@
 package edu.ncsu.csc326.wolfcafe.exception;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 /**
  * Provides details on errors.
@@ -16,7 +16,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ErrorDetails {
 
+    /**
+     * Time the error occurred
+     */
     private LocalDateTime timeStamp;
-    private String message;
-    private String details;
+    /**
+     * Summary or title of the error
+     */
+    private String        message;
+    /**
+     * More details about the error
+     */
+    private String        details;
 }
