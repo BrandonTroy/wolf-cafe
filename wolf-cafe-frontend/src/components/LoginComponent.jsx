@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { loginAPICall, saveLoggedInUser, storeToken } from '../services/AuthService'
+import { logout, loginAPICall, saveLoggedInUser, storeToken } from '../services/AuthService'
 import { useNavigate } from 'react-router-dom'
 
 const LoginComponent = () => {
@@ -12,10 +12,7 @@ const LoginComponent = () => {
   async function handleLoginForm(e) {
     e.preventDefault()
 
-    const loginObj = {usernameOrEmail, password}
-
-    console.log(loginObj)
-
+    logout(); // Backend won't authorize request if we already have a token
     await loginAPICall(usernameOrEmail, password).then((response) => {
       console.log(response.data)
 
