@@ -8,6 +8,8 @@ import edu.ncsu.csc326.wolfcafe.entity.User;
 /**
  * Class that maps user entries into a single dto containing a map of items to
  * quantities
+ * 
+ * @author Karthik Nandakumar
  */
 @Component
 public class UserMapper {

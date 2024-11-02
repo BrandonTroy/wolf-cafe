@@ -13,6 +13,11 @@ import edu.ncsu.csc326.wolfcafe.mapper.UserMapper;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.service.UserService;
 
+/**
+ * User service implementation
+ * 
+ * @author Karthik Nandakumar
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -32,6 +37,11 @@ public class UserServiceImpl implements UserService {
 		return UserMapper.mapToUserDto(savedUser);
 	}
 
+	/**
+	 * Validates a user dto
+	 * 
+	 * @param userDto the dto to be validated
+	 */
 	private void validateUserDto(UserDto userDto) {
 		// Check username validity
 		if (!userDto.getUsername().matches("^[a-zA-Z0-9.]+$")) {
@@ -64,9 +74,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto updateUser(Long id, UserDto userDto) {
-		if (isDuplicateUsername(userDto.getUsername()) || isDuplicateEmail(userDto.getEmail())) {
-			throw new IllegalArgumentException("Duplicate username or email");
-		}
 
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with id " + id));
@@ -74,7 +81,7 @@ public class UserServiceImpl implements UserService {
 		user.setUsername(userDto.getUsername());
 		user.setEmail(userDto.getEmail());
 		user.setPassword(userDto.getPassword());
-		user.setRole(userDto.getRole()); // Assuming role is properly mapped in UserDto
+		user.setRole(userDto.getRole());
 
 		User savedUser = userRepository.save(user);
 		return UserMapper.mapToUserDto(savedUser);

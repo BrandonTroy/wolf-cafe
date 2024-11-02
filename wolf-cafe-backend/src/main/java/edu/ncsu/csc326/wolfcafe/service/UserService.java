@@ -6,6 +6,8 @@ import edu.ncsu.csc326.wolfcafe.dto.UserDto;
 
 /**
  * User service for doing CRUD operations on users
+ * 
+ * @author Karthik Nandakumar
  */
 public interface UserService {
 

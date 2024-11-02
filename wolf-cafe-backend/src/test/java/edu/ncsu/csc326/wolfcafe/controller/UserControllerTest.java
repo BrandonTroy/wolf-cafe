@@ -3,9 +3,8 @@ package edu.ncsu.csc326.wolfcafe.controller;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.jayway.jsonpath.JsonPath;
 
 import edu.ncsu.csc326.wolfcafe.TestUtils;
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -14,13 +13,17 @@ import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Tests for user controller
+ * 
+ * @author Karthik Nandakumar
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
@@ -33,17 +36,28 @@ public class UserControllerTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	/**
+	 * Clears the user repository before each test
+	 * 
+	 * @throws Exception
+	 */
 	@BeforeEach
 	public void setUp() throws Exception {
 		userRepository.deleteAll();
 	}
 
+	/**
+	 * Test to create a user
+	 * 
+	 * @throws Exception
+	 */
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void testCreateUser() throws Exception {
-		UserDto userDto1 = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
-				new Role(1L, "MANAGER"));
-		UserDto userDto2 = new UserDto(2, "Ryan Hinshaw", "rthinsha", "rthinsha@ncsu.edu", "ndsofbsjnd",
-				new Role(2L, "STAFF"));
+		UserDto userDto1 = new UserDto(0L, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
+				new Role(0L, "MANAGER"));
+		UserDto userDto2 = new UserDto(1L, "Ryan Hinshaw", "rthinsha", "rthinsha@ncsu.edu", "ndsofbsjnd",
+				new Role(1L, "STAFF"));
 
 		// Valid user creation
 		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto1))
@@ -60,46 +74,75 @@ public class UserControllerTest {
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
 	}
 
+	/**
+	 * Tests to get a user
+	 * 
+	 * @throws Exception
+	 */
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void testGetUser() throws Exception {
-		UserDto userDto = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
-				new Role(1L, "MANAGER"));
-
+		UserDto userDto = new UserDto(0L, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
+				new Role(0L, "MANAGER"));
+		UserDto userDto2 = new UserDto(1L, "Ryan Hinshaw", "rthinsha", "rthinsha@ncsu.edu", "ndsofbsjnd",
+				new Role(1L, "STAFF"));
 		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
-
-		mvc.perform(get("/api/users/1")).andExpect(status().isOk()).andExpect(jsonPath("$.username").value("knandak"));
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto2))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
+		mvc.perform(get("/api/users/{id}", userRepository.findByUsername("knandak").get().getId()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("knandak"));
 	}
 
+	/**
+	 * Tests to update a user
+	 * 
+	 * @throws Exception
+	 */
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void testUpdateUser() throws Exception {
-		UserDto userDto = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
+		UserDto userDto = new UserDto(1L, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
 				new Role(1L, "MANAGER"));
 
 		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
 
+		userDto.setUsername("karthik");
 		userDto.setEmail("newemail@ncsu.edu");
 
-		mvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
+		mvc.perform(put("/api/users/{id}", userRepository.findByUsername("knandak").get().getId())
+				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.email").value("newemail@ncsu.edu"));
 	}
 
+	/**
+	 * Tests to delete a user
+	 * 
+	 * @throws Exception
+	 */
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void testDeleteUser() throws Exception {
-		UserDto userDto = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
+		UserDto userDto = new UserDto(1L, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
 				new Role(1L, "MANAGER"));
 
 		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
+		Long id = userRepository.findByUsername("knandak").get().getId();
+		mvc.perform(delete("/api/users/{id}", id)).andExpect(status().isOk());
 
-		mvc.perform(delete("/api/users/1")).andExpect(status().isOk());
-
-		mvc.perform(get("/api/users/1")).andExpect(status().isNotFound());
+		mvc.perform(get("/api/users/{id}", id)).andExpect(status().isNotFound());
 	}
 
+	/**
+	 * Tests to get a list of users
+	 * 
+	 * @throws Exception
+	 */
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void testGetUsersList() throws Exception {
 		mvc.perform(get("/api/users")).andExpect(status().isOk());
 	}

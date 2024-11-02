@@ -8,6 +8,8 @@ import edu.ncsu.csc326.wolfcafe.entity.User;
 
 /**
  * Repository interface for users.
+ * 
+ * @author Karthik Nandakumar
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
