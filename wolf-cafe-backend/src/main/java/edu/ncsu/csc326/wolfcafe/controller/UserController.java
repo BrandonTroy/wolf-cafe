@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -31,6 +32,7 @@ public class UserController {
 	 * @param userDto a user dto
 	 * @return a UserDto object
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
 		if (userService.isDuplicateUsername(userDto.getUsername())
@@ -64,6 +66,7 @@ public class UserController {
 	 * @param userDto the user dto
 	 * @return an updated user dto
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{id}")
 	public ResponseEntity<UserDto> updateUser(@PathVariable("id") long id, @RequestBody UserDto userDto) {
 		if (userService.isDuplicateUsername(userDto.getUsername())
@@ -96,6 +99,7 @@ public class UserController {
 	 * @param id the id of the user dto to find
 	 * @return a user dto
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<UserDto> getUser(@PathVariable long id) {
 		UserDto userDto = userService.getUserById(id);
@@ -111,6 +115,7 @@ public class UserController {
 	 * @param id the id of the user dto to be deleted
 	 * @return status
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteUser(@PathVariable long id) {
 		try {
@@ -126,6 +131,7 @@ public class UserController {
 	 * 
 	 * @return a list of user dtos
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<UserDto>> getUsersList() {
 		List<UserDto> users = userService.getUsersList();
