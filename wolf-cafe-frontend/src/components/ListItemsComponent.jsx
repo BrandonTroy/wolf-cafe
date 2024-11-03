@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { isAdminUser } from '../services/AuthService'
+import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser } from '../services/AuthService'
 import { getAllItems, deleteItemById } from '../services/ItemService'
 
 
 const ListItemsComponent = () => {
-	
 	const [items, setItems] = useState([])
-
 	const navigate = useNavigate()
-
-	const isAdmin = isAdminUser()
 	
 	useEffect(() => {
 	  listItems()
@@ -45,12 +41,14 @@ const ListItemsComponent = () => {
 	
 	return (
 		<div className='container'>
-			<br /> <br />
-		  <h2 className='text-center'>Items</h2>
-			{
-				isAdmin && 
-				<button className='btn btn-primary mb-2' onClick={addNewItem}>Add Item</button>
-			}
+      <br /> <br />
+      <div className='d-flex justify-content-between align-items-center'>
+        <h2 className='text-center mx-auto mb-3'>Items</h2>
+        {
+          isManagerUser() && 
+          <button className='btn btn-primary mb-2 ml-auto' onClick={addNewItem}>Add Item</button>
+        }
+      </div>
 			<div>
 				<table className='table table-bordered table-striped'>
 					<thead>
@@ -58,7 +56,7 @@ const ListItemsComponent = () => {
 							<th>Item Name</th>
 							<th>Description</th>
 							<th>Price</th>
-							<th>Actions</th>
+              {!isBaristaUser() && <th>Actions</th>}
 						</tr>
 					</thead>
 					<tbody>
@@ -68,14 +66,17 @@ const ListItemsComponent = () => {
 									<td>{item.name}</td>
 									<td>{item.description}</td>
 									<td>{item.price}</td>
-									<td>
+                  {!isBaristaUser() && <td>
 										{
-											isAdmin && <button className='btn btn-info' onClick={() => updateItem(item.id)}>Update</button>
+											isManagerUser() && <button className='btn btn-info' onClick={() => updateItem(item.id)}>Update</button>
 										}
 										{
-											isAdmin && <button className='btn btn-danger' onClick={() => deleteItem(item.id)}style={{marginLeft: "10px"}}>Delete</button>
-										}
-									</td>
+											isManagerUser() && <button className='btn btn-danger' onClick={() => deleteItem(item.id)}style={{marginLeft: "10px"}}>Delete</button>
+                    }
+                    {
+                      (isCustomerUser() || isGuestUser()) && <button className='btn btn-primary' onClick={() => console.log(item.id)}>Add to Order</button>
+                    }
+									</td>}
 								</tr>
 							)
 						}
