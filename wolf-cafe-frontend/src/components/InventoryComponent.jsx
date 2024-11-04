@@ -35,14 +35,15 @@ const InventoryComponent = () => {
     updateInventory({ itemQuantities: quantityAdded }).then((response) => {
       console.log(response.data)
       setInventory(response.data.itemQuantities)
-      const resetQuantities = Object.keys(response.data.itemQuantities).reduce((acc, item) => {
-        acc[item.id] = 0
+      const resetQuantities = Object.keys(response.data.itemQuantities).reduce((acc, id) => {
+        acc[id] = 0
         return acc
       }, {})
       setQuantityAdded(resetQuantities)
       setSuccessMessage('Addition Success!')
     }).catch(error => {
       console.error(error)
+	  alert("Error: Input must be a number")
     })
   }
 
@@ -51,7 +52,7 @@ const InventoryComponent = () => {
 
     for (const [key, value] of Object.entries(quantityAdded)) {
       if (value < 0) {
-        errors.push(`Error: The amount of ${key} must be a positive integer.`)
+        errors.push(`Error: Cannot add a negative number.`)
       }
     }
 
