@@ -11,6 +11,7 @@ const LoginComponent = () => {
 
   async function handleLoginForm(e) {
     e.preventDefault()
+	if (usernameOrEmail === "guest-user") return
 
     const loginObj = {usernameOrEmail, password}
 
@@ -34,7 +35,28 @@ const LoginComponent = () => {
       console.error('ERROR1' + error)
     })
   }
+  
+  async function coninueAsGuest() {
+	console.log("guest login")
 
+	await loginAPICall("guest-user", "guest").then((response) => {
+	  console.log(response.data)
+
+      // const token = 'Basic ' + window.btoa(usernameOrEmail + ':' + password);
+      const token = 'Bearer ' + response.data.accessToken
+
+      const role = response.data.role
+
+	  storeToken(token)
+	  saveLoggedInUser(usernameOrEmail, role)
+
+	  navigator('/items')
+
+	  window.location.reload(false)
+    }).catch(error => {
+	  console.error('ERROR1' + error)
+	})
+  }
 
   return (
     <div className='container'>
@@ -81,6 +103,7 @@ const LoginComponent = () => {
                   <button className='btn btn-primary' onClick={(e) => handleLoginForm(e)}>Submit</button>
                 </div>
               </form>
+			  <button className='btn btn-secondary' onClick={() => coninueAsGuest()}>Continue as Guest</button>
             </div>
           </div>
         </div>
