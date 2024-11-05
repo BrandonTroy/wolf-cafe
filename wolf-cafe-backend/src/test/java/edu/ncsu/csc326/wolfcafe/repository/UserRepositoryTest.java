@@ -43,7 +43,7 @@ public class UserRepositoryTest {
 		userRepository.deleteAll(); // Clear the repository before each test
 
 		// Create and save test users
-		User user1 = new User(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
+		User user1 = new User(1, "Narim Lee", "nlee23", "nlee23@ncsu.edu", "djsbnsdf",
 				new Role(1L, "MANAGER"));
 		User user2 = new User(2, "Ryan Hinshaw", "rthinsha", "rthinsha@ncsu.edu", "ndsofbsjnd", new Role(2L, "STAFF"));
 
@@ -58,9 +58,9 @@ public class UserRepositoryTest {
 	 */
 	@Test
 	void testFindByUsername() {
-		Optional<User> user = userRepository.findByUsername("knandak");
+		Optional<User> user = userRepository.findByUsername("nlee23");
 		User actualUser = user.get();
-		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", actualUser.getName()));
+		assertAll("User contents", () -> assertEquals("Narim Lee", actualUser.getName()));
 
 		user = userRepository.findByUsername("rthinsha");
 		User actualUser2 = user.get();
@@ -74,7 +74,7 @@ public class UserRepositoryTest {
 	void testFindById() {
 		Optional<User> user = userRepository.findById(userDto1.getId());
 		User actualUser = user.get();
-		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", actualUser.getName()));
+		assertAll("User contents", () -> assertEquals("Narim Lee", actualUser.getName()));
 
 		user = userRepository.findById(userDto2.getId());
 		User actualUser2 = user.get();
@@ -86,9 +86,9 @@ public class UserRepositoryTest {
 	 */
 	@Test
 	void testFindByEmail() {
-		Optional<User> user = userRepository.findByEmail("knandak@ncsu.edu");
+		Optional<User> user = userRepository.findByEmail("nlee23@ncsu.edu");
 		User actualUser = user.get();
-		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", actualUser.getName()));
+		assertAll("User contents", () -> assertEquals("Narim Lee", actualUser.getName()));
 
 		user = userRepository.findByEmail("rthinsha@ncsu.edu");
 		User actualUser2 = user.get();
