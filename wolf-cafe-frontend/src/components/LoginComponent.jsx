@@ -24,8 +24,12 @@ const LoginComponent = () => {
       storeToken(token)
       saveLoggedInUser(usernameOrEmail, role)
 
-      navigator('/items')
-
+      if (role === "ROLE_ADMIN") {
+		navigator('/users')
+      } else {
+		navigator('/items')
+	  }
+		
       window.location.reload(false)
     }).catch(error => {
       console.error('ERROR1' + error)
