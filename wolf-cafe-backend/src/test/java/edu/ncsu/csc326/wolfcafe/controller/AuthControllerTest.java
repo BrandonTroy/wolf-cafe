@@ -77,7 +77,7 @@ public class AuthControllerTest {
     @Transactional
     public void testLoginAdmin () throws Exception {
         final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
-
+        
         mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
