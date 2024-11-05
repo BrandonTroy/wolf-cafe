@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser } from '../services/AuthService'
 import { getAllItems, deleteItemById } from '../services/ItemService'
+import { OrderContext } from '../OrderContext'
 
 
 const ListItemsComponent = () => {
-	const [items, setItems] = useState([])
-	const navigate = useNavigate()
+  const [items, setItems] = useState([])
+	const { order, setOrder } = useContext(OrderContext)
+  const navigate = useNavigate()
 	
 	useEffect(() => {
 	  listItems()
@@ -31,12 +33,12 @@ const ListItemsComponent = () => {
 	
 	function deleteItem(id) {
 		console.log(id)
-		deleteItemById(id).then((response) => {
+		deleteItemById(id).then(() => {
 			listItems()
 		}).catch(error => {
 			console.error(error)
 		})
-	}
+  }
 
 	
 	return (
@@ -73,8 +75,14 @@ const ListItemsComponent = () => {
 										{
 											isManagerUser() && <button className='btn btn-danger' onClick={() => deleteItem(item.id)}style={{marginLeft: "10px"}}>Delete</button>
                     }
-                    {
-                      (isCustomerUser() || isGuestUser()) && <button className='btn btn-primary' onClick={() => console.log(item.id)}>Add to Order</button>
+                    {(isCustomerUser() || isGuestUser()) &&
+                      <button
+                        className='btn btn-primary'
+                        onClick={() => setOrder({ ...order, [item.id]: 1 })}
+                        disabled={Object.keys(order).includes(item.id.toString())}
+                      >
+                        Add to Order
+                      </button>
                     }
 									</td>}
 								</tr>
