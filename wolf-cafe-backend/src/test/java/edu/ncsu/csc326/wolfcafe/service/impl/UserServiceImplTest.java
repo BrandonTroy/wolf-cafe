@@ -100,7 +100,6 @@ public class UserServiceImplTest {
 		userDto.setUsername("knandakumar");
 		UserDto updatedUser = userService.updateUser(savedUser.getId(), userDto);
 		List<UserDto> userList = userService.getUsersList();
-		System.out.println(userList.get(0).getUsername());
 		assertEquals(userList.size(), 1);
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", updatedUser.getName()),
 				() -> assertEquals("knandakumar", updatedUser.getUsername()),
