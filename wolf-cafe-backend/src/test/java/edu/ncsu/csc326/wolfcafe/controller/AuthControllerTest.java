@@ -78,13 +78,13 @@ public class AuthControllerTest {
     @Test
     @Transactional
     public void testLoginAdmin () throws Exception {
+        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
+
         if ( userRepository.findByUsername( "admin" ).isEmpty() ) {
             User admin = new User( 0L, "Admin User", "admin", "admin@admin.edu", adminUserPassword,
                     new Role( 0L, "ADMIN" ) );
             userRepository.save( admin );
         }
-
-        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
 
         mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
