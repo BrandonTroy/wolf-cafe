@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { getAllItems } from '../services/ItemService'
 import { order } from '../services/OrderService'
 import { OrderContext } from '../OrderContext'
+import PriceInput from './PriceInput'
 
 /** Provides functionality to order an item, pay for it, and receive change.*/
 const OrderComponent = () => {
@@ -104,7 +105,7 @@ const OrderComponent = () => {
           <label htmlFor="tip" className="me-3">Add Tip:</label>
           <select
             id="tip"
-            className="form-select"
+            className="form-select me-3"
             style={{ width: 'auto' }}
             value={isCustomTip ? 'custom' : tip}
             onChange={handleTipChange}
@@ -115,25 +116,13 @@ const OrderComponent = () => {
             <option value="0.2">20%</option>
             <option value="custom">Custom</option>
           </select>
-          <input
-            type="number"
-            className="form-control ms-3"
-            step="0.01"
-            style={{ width: 100 }}
-            value={isNaN(tip) ? "" : Math.round(tip * subTotal * 100) / 100}
-            onChange={(e) => setTip(parseFloat(e.target.value) / subTotal)}
-            onInput={(e) => {
-              const value = e.target.value;
-              if (value.includes('.')) {
-                const [integer, decimal] = value.split('.');
-                if (decimal.length > 2) {
-                  e.target.value = `${integer}.${decimal.slice(0, 2)}`;
-                }
-              }
-            }}
-            onBlur={() => setTip(tip || 0)}
+          <PriceInput
+            value={Math.round(tip * subTotal * 100) / 100}
+            onChange={(value) => setTip(value / subTotal)}
             disabled={!isCustomTip}
+            style={{ width: 100 }}
           />
+
         </div>
           
         <div className='mt-4'>Final Total: <strong>${(subTotal * (1 + tax + (tip || 0))).toFixed(2)}</strong></div>
