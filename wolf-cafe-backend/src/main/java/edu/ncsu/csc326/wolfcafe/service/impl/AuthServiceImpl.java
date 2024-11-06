@@ -1,8 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +17,7 @@ import edu.ncsu.csc326.wolfcafe.entity.Role;
 import edu.ncsu.csc326.wolfcafe.entity.User;
 import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
 import edu.ncsu.csc326.wolfcafe.exception.WolfCafeAPIException;
-import edu.ncsu.csc326.wolfcafe.repository.RoleRepository;
+import edu.ncsu.csc326.wolfcafe.mapper.RoleMapper;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.security.JwtTokenProvider;
 import edu.ncsu.csc326.wolfcafe.service.AuthService;
@@ -36,10 +34,6 @@ public class AuthServiceImpl implements AuthService {
      * Connection to the database table storing users
      */
     private final UserRepository        userRepository;
-    /**
-     * Connection to the database table storing roles
-     */
-    private final RoleRepository        roleRepository;
     /**
      * Tool to encrypt passwords for security
      */
@@ -76,12 +70,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername( registerDto.getUsername() );
         user.setEmail( registerDto.getEmail() );
         user.setPassword( passwordEncoder.encode( registerDto.getPassword() ) );
-
-        final Set<Role> roles = new HashSet<>();
-        final Role userRole = roleRepository.findByName( "ROLE_CUSTOMER" );
-        roles.add( userRole );
-
-        user.setRoles( roles );
+        user.setRole( Role.CUSTOMER );
 
         userRepository.save( user );
 
@@ -110,12 +99,7 @@ public class AuthServiceImpl implements AuthService {
         String role = null;
         if ( userOptional.isPresent() ) {
             final User loggedInUser = userOptional.get();
-            final Optional<Role> optionalRole = loggedInUser.getRoles().stream().findFirst();
-
-            if ( optionalRole.isPresent() ) {
-                final Role userRole = optionalRole.get();
-                role = userRole.getName();
-            }
+            role = RoleMapper.toString( loggedInUser.getRole() );
         }
 
         final JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();

@@ -8,6 +8,8 @@ import edu.ncsu.csc326.wolfcafe.entity.User;
 
 /**
  * Repository interface for users.
+ *
+ * @author Karthik Nandakumar
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -19,14 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return User object or exception on error
      */
     Optional<User> findByUsername ( String username );
-
-    /**
-     * Deletes the user with the given username. Used for testing purposes.
-     *
-     * @param username
-     *            username of user to delete
-     */
-    void deleteByUsername ( String username );
 
     /**
      * Returns true if a user exists with the given email.
@@ -56,4 +50,31 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return true if username exists for a user
      */
     Boolean existsByUsername ( String username );
+
+    /**
+     * Returns the user object associated with either the id
+     *
+     * @param id
+     *            user's id
+     * @return User object or exception on error
+     */
+    @Override
+    Optional<User> findById ( Long id );
+
+    /**
+     * Returns the user object associated with the given email
+     *
+     * @param userEmail
+     *            email to search for
+     * @return user with that email
+     */
+    Optional<User> findByEmail ( String userEmail );
+
+    /**
+     * Deletes the user with the given username
+     *
+     * @param username
+     *            username of user to delete
+     */
+    void deleteByUsername ( String username );
 }
