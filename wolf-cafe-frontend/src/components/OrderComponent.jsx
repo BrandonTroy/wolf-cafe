@@ -9,7 +9,7 @@ const OrderComponent = () => {
   const { order, setOrder } = useContext(OrderContext)
   const [subTotal, setSubtotal] = useState(0)
   const [tax, setTax] = useState(0.02)
-  const [tip, setTip] = useState(0)
+  const [tip, setTip] = useState(0.15)
   const [isCustomTip, setIsCustomTip] = useState(false)
 
   useEffect(() => {
@@ -40,13 +40,13 @@ const OrderComponent = () => {
     setOrder(newOrder);
   }
 
-  function handleTipChange(e) {
+  function handleTipChange(e) {    
     const value = e.target.value;
     if (value === 'custom') {
       setTip(0);
       setIsCustomTip(true);
     } else {
-      setTip(parseFloat(value) * subTotal);
+      setTip(parseFloat(value));
       setIsCustomTip(false);
     }
   }
@@ -106,6 +106,7 @@ const OrderComponent = () => {
             id="tip"
             className="form-select"
             style={{ width: 'auto' }}
+            value={isCustomTip ? 'custom' : tip}
             onChange={handleTipChange}
           >
             <option value="0">No Tip</option>
@@ -119,19 +120,28 @@ const OrderComponent = () => {
             className="form-control ms-3"
             step="0.01"
             style={{ width: 100 }}
-            value={(Math.round(tip * 100) / 100).toString()}
-            onChange={(e) => setTip(parseFloat(e.target.value))}
+            value={isNaN(tip) ? "" : Math.round(tip * subTotal * 100) / 100}
+            onChange={(e) => setTip(parseFloat(e.target.value) / subTotal)}
+            onInput={(e) => {
+              const value = e.target.value;
+              if (value.includes('.')) {
+                const [integer, decimal] = value.split('.');
+                if (decimal.length > 2) {
+                  e.target.value = `${integer}.${decimal.slice(0, 2)}`;
+                }
+              }
+            }}
             onBlur={() => setTip(tip || 0)}
             disabled={!isCustomTip}
           />
         </div>
           
-        <div className='mt-4'>Final Total: <strong>${(subTotal * (1 + tax) + (tip || 0)).toFixed(2)}</strong></div>
+        <div className='mt-4'>Final Total: <strong>${(subTotal * (1 + tax + (tip || 0))).toFixed(2)}</strong></div>
 
         <button
           type="button"
           className="btn btn-primary mt-4"
-          onClick={() => makeOrder(order, subTotal * (1 + tax) + (tip || 0))}
+          onClick={() => makeOrder(order, subTotal * (1 + tax + (tip || 0)))}
         >
           Place Order
         </button>
