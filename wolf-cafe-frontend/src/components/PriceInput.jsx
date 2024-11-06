@@ -66,8 +66,10 @@ const PriceInput = ({
   return (
     <input
       type="number"
-      className="form-control"
+      inputMode="decimal"
       min={min}
+      step="0.01"
+      className="form-control"
       style={style}
       value={displayValue}
       onChange={handleChange}
@@ -75,7 +77,6 @@ const PriceInput = ({
       onBlur={handleBlur}
       disabled={disabled}
       placeholder={placeholder}
-      inputMode="decimal"
       required={required}
     />
   );
