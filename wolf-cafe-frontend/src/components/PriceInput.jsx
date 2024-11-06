@@ -44,6 +44,13 @@ const PriceInput = ({
     }
   };
 
+  const handleKeyDown = (e) => {
+    // Prevent the browser's built-in validation from clearing the input
+    if (e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+') {
+      e.preventDefault();
+    }
+  };
+
   const handleBlur = () => {
     let formattedValue = displayValue;
     if (displayValue === '' || isNaN(parseFloat(displayValue))) {
@@ -64,6 +71,7 @@ const PriceInput = ({
       style={style}
       value={displayValue}
       onChange={handleChange}
+      onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       disabled={disabled}
       placeholder={placeholder}
