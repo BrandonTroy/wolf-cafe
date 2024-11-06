@@ -25,8 +25,8 @@ const LoginComponent = () => {
       storeToken(token)
       saveLoggedInUser(usernameOrEmail, role)
 
-      navigator('/items')
-
+      navigator('/')
+		
       window.location.reload(false)
     }).catch(error => {
       console.error('ERROR1' + error)

@@ -9,7 +9,8 @@ import ListItemsComponent from './components/ListItemsComponent'
 import ItemComponent from './components/ItemComponent'
 import InventoryComponent from './components/InventoryComponent'
 import OrderComponent from './components/OrderComponent'
-  
+import { OrderProvider } from './OrderContext'
+
 function App() {
 
   function AuthenticatedRoute({ roleCheck = true, children }) {
@@ -36,7 +37,7 @@ function App() {
   }
 
   return (
-    <>
+    <OrderProvider>
       <BrowserRouter>
 	    <HeaderComponent />
 	    <Routes>
@@ -53,7 +54,7 @@ function App() {
       </Routes>
       <FooterComponent />
       </BrowserRouter>
-    </>
+    </OrderProvider>
   )
 }
 
