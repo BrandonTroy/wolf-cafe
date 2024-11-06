@@ -1,24 +1,18 @@
 package edu.ncsu.csc326.wolfcafe.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
- * User role.
+ * User roles.
  */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "roles")
-public class Role {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String name;
+public enum Role {
+    /** Admin role for managing users and tax */
+    ADMIN,
+    /** Manager role for managing items and inventory. */
+    MANAGER,
+    /** Barista role for managing inventory. */
+    BARISTA,
+    /** Customer role for placing orders. */
+    CUSTOMER,
+    /** Guest role for placing anonymous orders. */
+    GUEST
 
 }
