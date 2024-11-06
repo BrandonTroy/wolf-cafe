@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.ncsu.csc326.wolfcafe.TestUtils;
 import edu.ncsu.csc326.wolfcafe.dto.LoginDto;
 import edu.ncsu.csc326.wolfcafe.dto.RegisterDto;
+import edu.ncsu.csc326.wolfcafe.entity.Role;
+import edu.ncsu.csc326.wolfcafe.entity.User;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 
 /**
@@ -76,8 +78,14 @@ public class AuthControllerTest {
     @Test
     @Transactional
     public void testLoginAdmin () throws Exception {
+        if ( userRepository.findByUsername( "admin" ).isEmpty() ) {
+            User admin = new User( 0L, "Admin User", "admin", "admin@admin.edu", adminUserPassword,
+                    new Role( 0L, "ADMIN" ) );
+            userRepository.save( admin );
+        }
+
         final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
-        
+
         mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
