@@ -2,12 +2,13 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { getItemById, saveItem, updateItem } from '../services/ItemService'
 import { useNavigate, useParams } from 'react-router-dom'
+import PriceInput from './PriceInput'
 
 const ItemComponent = () => {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [price, setPrice] = useState(0)
+  const [price, setPrice] = useState('')
   const { id } = useParams()
 
   const navigate = useNavigate()
@@ -54,16 +55,6 @@ const ItemComponent = () => {
       return <h2 className='text-center'>Add Item</h2>
     }
   }
-  
-  function setPriceWithErrorChecks(new_price) {
-	if (new_price.includes('.')) {
-		new_price = new_price.substring(0, new_price.indexOf('.') + 3);
-	}
-	if (new_price.startsWith('-')) {
-		new_price = new_price.substring(1);
-	}
-	setPrice(parseFloat(new_price));
-  }
 
   return (
     <div className='container'>
@@ -103,16 +94,11 @@ const ItemComponent = () => {
 
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Price:</label>
-                <input 
-                  type='number'
-				  step='0.01'
-                  className='form-control'
-                  placeholder='Enter Item Price'
-                  name='price'
+                <PriceInput
                   value={price}
-                  onChange={(e) => setPriceWithErrorChecks(e.target.value)}
-                >
-                </input>
+                  onChange={value => setPrice(value)}
+                  placeholder='Enter Item Price'
+                />
               </div>
 
               <button type='submit' className='btn btn-success' onClick={(e) => saveOrUpdateItem(e)}>Submit</button>
