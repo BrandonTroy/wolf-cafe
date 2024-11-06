@@ -65,7 +65,7 @@ const ItemComponent = () => {
           { pageTitle() }
           
           <div className='card-body'>
-            <form>
+            <form onSubmit={(e) => saveOrUpdateItem(e)}>
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Name:</label>
                 <input 
@@ -75,6 +75,7 @@ const ItemComponent = () => {
                   name='name'
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  required
                 >
                 </input>
               </div>
@@ -88,6 +89,7 @@ const ItemComponent = () => {
                   name='description'
                   value={description}
                   onChange={(e) => setDescription(e.target.value.substring(0, Math.min(300, e.target.value.length)))}
+                  required
                 >
                 </input>
               </div>
@@ -98,10 +100,11 @@ const ItemComponent = () => {
                   value={price}
                   onChange={value => setPrice(value)}
                   placeholder='Enter Item Price'
+                  required
                 />
               </div>
 
-              <button type='submit' className='btn btn-success' onClick={(e) => saveOrUpdateItem(e)}>Submit</button>
+              <button type='submit' className='btn btn-success'>Submit</button>
             </form>
           </div>
         </div>

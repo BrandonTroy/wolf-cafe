@@ -6,7 +6,8 @@ const PriceInput = ({
   disabled = false,
   style = {},
   min = 0,
-  placeholder = "0.00"
+  placeholder = "0.00",
+  required = false
 }) => {
   const [displayValue, setDisplayValue] = useState('');
 
@@ -67,6 +68,7 @@ const PriceInput = ({
       disabled={disabled}
       placeholder={placeholder}
       inputMode="decimal"
+      required={required}
     />
   );
 };
