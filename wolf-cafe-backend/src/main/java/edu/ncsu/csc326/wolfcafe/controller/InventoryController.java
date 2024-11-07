@@ -49,7 +49,7 @@ public class InventoryController {
      *            amounts to add to inventory
      * @return response to the request
      */
-    @PreAuthorize ( "hasRole('STAFF')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'ADMIN')" )
     @PutMapping
     public ResponseEntity<InventoryDto> updateInventory ( @RequestBody final InventoryDto inventoryDto ) {
         final InventoryDto savedInventoryDto;

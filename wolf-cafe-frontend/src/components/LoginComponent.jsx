@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { logout, loginAPICall, saveLoggedInUser, storeToken } from '../services/AuthService'
+import NotificationPopup from './NotificationPopup'
 import { useNavigate } from 'react-router-dom'
 
 const LoginComponent = () => {
 
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [message, setMessage] = useState({type: "none", content:""})
 
   const navigator = useNavigate()
 
@@ -30,6 +32,7 @@ const LoginComponent = () => {
       window.location.reload(false)
     }).catch(error => {
       console.error('ERROR1' + error)
+	  setMessage({type:"error", content:"Your username and password do not match any user in our records. Make sure the spelling is correct."})
     })
   }
   
@@ -57,7 +60,9 @@ const LoginComponent = () => {
 
   return (
     <div className='container'>
-      <br /><br />
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+	  <br />
       <div className='row'>
         <div className='col-md-6 offset-md-3 offset-md-3'>
           <div className='card'>

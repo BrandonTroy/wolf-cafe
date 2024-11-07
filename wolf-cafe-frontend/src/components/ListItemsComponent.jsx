@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser } from '../services/AuthService'
 import { getAllItems, deleteItemById } from '../services/ItemService'
 import { OrderContext } from '../OrderContext'
-
+import NotificationPopup from './NotificationPopup'
 
 const ListItemsComponent = () => {
   const [items, setItems] = useState([])
+  const [message, setMessage] = useState({type: "none", content:""})
+
 	const { order, setOrder } = useContext(OrderContext)
   const navigate = useNavigate()
 	
@@ -36,6 +38,7 @@ const ListItemsComponent = () => {
 		deleteItemById(id).then(() => {
 			listItems()
 		}).catch(error => {
+			setMessage({type:"error", content: "Failed to delete item; bad connection or item was already deleted."});
 			console.error(error)
 		})
   }
@@ -43,7 +46,9 @@ const ListItemsComponent = () => {
 	
 	return (
 		<div className='container'>
-      <br /> <br />
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+	  <br />
       <div className='d-flex justify-content-between align-items-center'>
         <h2 className='text-center mx-auto mb-3'>Items</h2>
         {

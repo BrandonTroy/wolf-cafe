@@ -6,7 +6,9 @@ import RegisterComponent from './components/RegisterComponent'
 import HeaderComponent from './components/HeaderComponent'
 import FooterComponent from './components/FooterComponent'
 import ListItemsComponent from './components/ListItemsComponent'
+import ListUsersComponent from './components/ListUsersComponent'
 import ItemComponent from './components/ItemComponent'
+import UserComponent from './components/UserComponent'
 import InventoryComponent from './components/InventoryComponent'
 import OrderComponent from './components/OrderComponent'
 import { OrderProvider } from './OrderContext'
@@ -49,7 +51,8 @@ function App() {
         <Route path='/update-item/:id' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
         <Route path='/inventory' element={<AuthenticatedRoute roleCheck={isManagerUser() || isBaristaUser()}><InventoryComponent /></AuthenticatedRoute>} />
         <Route path='/order' element={<AuthenticatedRoute roleCheck={isCustomerUser() || isGuestUser()}><OrderComponent /></AuthenticatedRoute>} />
-        <Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><div>TODO</div></AuthenticatedRoute>} />
+		<Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
+		<Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
         <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><div>TODO</div></AuthenticatedRoute>} />
       </Routes>
       <FooterComponent />

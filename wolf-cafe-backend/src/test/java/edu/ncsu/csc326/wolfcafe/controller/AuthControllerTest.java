@@ -85,6 +85,23 @@ public class AuthControllerTest {
     }
 
     /**
+     * Tests logging in the admin user
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @Transactional
+    public void testLoginGuest () throws Exception {
+        final LoginDto loginDto = new LoginDto( "guest-user", "guest" );
+
+        mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
+                .andExpect( jsonPath( "$.role" ).value( "ROLE_GUEST" ) );
+    }
+
+    /**
      * Tests creating and then logging in a customer
      *
      * @throws Exception
