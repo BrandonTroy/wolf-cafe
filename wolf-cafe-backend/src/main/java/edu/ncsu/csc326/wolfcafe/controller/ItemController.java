@@ -39,7 +39,7 @@ public class ItemController {
      *            item to add
      * @return added item
      */
-    @PreAuthorize ( "hasRole('STAFF')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
     @PostMapping
     public ResponseEntity<ItemDto> addItem ( @RequestBody ItemDto itemDto ) {
         try {
@@ -59,7 +59,7 @@ public class ItemController {
      *            item id
      * @return item with the id
      */
-    @PreAuthorize ( "hasAnyRole('STAFF', 'CUSTOMER')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
     @GetMapping ( "{id}" )
     public ResponseEntity<ItemDto> getItem ( @PathVariable ( "id" ) Long id ) {
         try {
@@ -76,7 +76,7 @@ public class ItemController {
      *
      * @return a list of all items
      */
-    @PreAuthorize ( "hasAnyRole('STAFF', 'CUSTOMER')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAllItems () {
         List<ItemDto> items = itemService.getAllItems();
@@ -92,7 +92,7 @@ public class ItemController {
      *            information about the item to update
      * @return updated item
      */
-    @PreAuthorize ( "hasRole('STAFF')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
     @PutMapping ( "{id}" )
     public ResponseEntity<ItemDto> updateItem ( @PathVariable ( "id" ) Long id, @RequestBody ItemDto itemDto ) {
         try {
@@ -112,7 +112,7 @@ public class ItemController {
      *            item to delete
      * @return response indicating success or failure
      */
-    @PreAuthorize ( "hasRole('STAFF')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
     @DeleteMapping ( "{id}" )
     public ResponseEntity<String> deleteItem ( @PathVariable ( "id" ) Long id ) {
         try {
