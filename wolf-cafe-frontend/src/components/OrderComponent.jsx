@@ -3,6 +3,7 @@ import { getAllItems } from '../services/ItemService'
 import { order } from '../services/OrderService'
 import { OrderContext } from '../OrderContext'
 import PriceInput from './PriceInput'
+import NotificationPopup from './NotificationPopup'
 
 /** Provides functionality to order an item, pay for it, and receive change.*/
 const OrderComponent = () => {
@@ -12,6 +13,7 @@ const OrderComponent = () => {
   const [tax, setTax] = useState(0.02)
   const [tip, setTip] = useState(0.15)
   const [isCustomTip, setIsCustomTip] = useState(false)
+  const [message, setMessage] = useState({type: "none", content:""})
 
   useEffect(() => {
     getAllItems().then((response) => {
@@ -54,7 +56,9 @@ const OrderComponent = () => {
 
   return (
     <div className="container">
-      <br /><br />
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+	  <br />
       <h2 className='text-center mx-auto mb-3'>Your Order</h2>
 
       <table className="table table-striped table-bordered mt-4">

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
+import edu.ncsu.csc326.wolfcafe.entity.Item;
+import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import lombok.AllArgsConstructor;
 
@@ -30,7 +32,13 @@ import lombok.AllArgsConstructor;
 public class ItemController {
 
     /** Link to ItemService */
-    private final ItemService itemService;
+    private final ItemService    itemService;
+
+    /**
+     * Connection to ItemRepository for dealing with the items table in the
+     * database
+     */
+    private final ItemRepository itemRepository;
 
     /**
      * Adds an item to the list of items. Requires the STAFF role.
@@ -49,7 +57,6 @@ public class ItemController {
         catch ( IllegalArgumentException e ) {
             return ResponseEntity.status( HttpStatus.CONFLICT ).body( itemDto );
         }
-
     }
 
     /**
@@ -79,7 +86,7 @@ public class ItemController {
     @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAllItems () {
-        List<ItemDto> items = itemService.getAllItems();
+        final List<ItemDto> items = itemService.getAllItems();
         return ResponseEntity.ok( items );
     }
 
@@ -102,7 +109,6 @@ public class ItemController {
         catch ( ResourceNotFoundException e ) {
             return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( null );
         }
-
     }
 
     /**
@@ -122,6 +128,5 @@ public class ItemController {
         catch ( ResourceNotFoundException e ) {
             return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( null );
         }
-
     }
 }
