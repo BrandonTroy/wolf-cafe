@@ -9,6 +9,7 @@ const ItemComponent = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+
   const { id } = useParams()
 
   const navigate = useNavigate()

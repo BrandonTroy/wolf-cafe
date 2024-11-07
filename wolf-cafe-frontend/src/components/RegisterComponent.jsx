@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { registerAPICall } from '../services/AuthService'
+import NotificationPopup from './NotificationPopup'
 
 const RegisterComponent = () => {
 
@@ -7,24 +8,54 @@ const RegisterComponent = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [message, setMessage] = useState({type: "none", content:""})
 
   function handleRegistrationForm(e) {
     e.preventDefault();
+	
+	//Help with regular expression syntax from Google search AI overview
+	if (name.search(/[^a-zA-Z\s\-\'\.]/) > -1) {
+	  setMessage({type:"error", content:"Name can only contain letters, spaces, hyphens, apostrophes and periods."})
+	  return
+	}
+	if (username.search(/[^a-zA-Z0-9\.]/) > -1) {
+	  setMessage({type:"error", content:"Username can only contain letters, numbers, and periods."})
+	  return
+	}
+	/*if (email.indexOf('@') != email.lastIndexOf('@') || !email.includes('@')) {
+	  setMessage({type:"error", content:"Email must contain one @ symbol."})
+	  return
+	}*/
+	if (password.length < 8) {
+	  setMessage({type:"error", content:"Password must be at least 8 characters long."})
+	  return
+	}
 
     const register = {name, username, email, password}
 
     console.log(register)
 
     registerAPICall(register).then((response) => {
+	  setMessage({type:"success", content:"Registration successful. Proceed to the login page."})
       console.log(response.data)
     }).catch(error => {
+      //if (error.response.data.message === "Username already exists.") {
+	  if (error.code === 409) {
+		setMessage({type:"error", content:"Username is already taken. Please choose another."})
+	  } else if (error.code === 400) {
+		setMessage({type:"error", content:"Email contains a disallowed character or invalid format. Please try another email."})
+	  } else {
+		setMessage({type:"error", content:"Registration failed. Check your network connection."})
+	  }
       console.error(error)
     })
   }
 
   return (
     <div className='container'>
-      <br /><br />
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+	  <br />
       <div className='row'>
         <div className='col-md-6 offset-md-3 offset-md-3'>
           <div className='card'>
