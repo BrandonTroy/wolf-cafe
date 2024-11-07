@@ -254,7 +254,8 @@ public class ItemControllerTest {
                 .andExpect( jsonPath( "$.price" ).value( 19.99 ) );
 
         // Test updating an item that does not exist
-        mvc.perform( get( API_PATH + "/" + 234523L ).accept( MediaType.APPLICATION_JSON ) )
+        mvc.perform( put( API_PATH + "/" + 1345663L ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( updatedItemDto ) ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isNotFound() );
     }
 }
