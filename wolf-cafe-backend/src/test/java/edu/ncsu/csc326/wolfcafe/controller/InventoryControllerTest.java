@@ -90,7 +90,7 @@ public class InventoryControllerTest {
      */
     @Test
     @Transactional
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "staff", roles = "MANAGER" )
     public void testUpdateInventory () throws Exception {
         inventoryRepository.deleteAll();
         itemRepository.deleteAll();
@@ -126,7 +126,7 @@ public class InventoryControllerTest {
      */
     @Test
     @Transactional
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "staff", roles = "MANAGER" )
     public void testUpdateInventoryNoEntry () throws Exception {
         inventoryRepository.deleteAll();
         itemRepository.deleteAll();

@@ -2,6 +2,7 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { getItemById, saveItem, updateItem } from '../services/ItemService'
 import { useNavigate, useParams } from 'react-router-dom'
+import NotificationPopup from './NotificationPopup'
 import PriceInput from './PriceInput'
 
 const ItemComponent = () => {
@@ -9,6 +10,7 @@ const ItemComponent = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+  const [message, setMessage] = useState({type: "none", content:""})
 
   const { id } = useParams()
 
@@ -37,6 +39,11 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
+		if (error.status === 409) {
+		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
+		} else {
+		  setMessage({type:"error", content: "Could not update item. Check your connection."});
+		}
         console.error(error)
       })
     } else {
@@ -44,6 +51,11 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
+		if (error.status === 409) {
+		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
+		} else {
+		  setMessage({type:"error", content: "Could not create item. Check your connection."});
+		}
         console.error(error)
       })
     }
@@ -60,6 +72,7 @@ const ItemComponent = () => {
   return (
     <div className='container'>
       <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
       <br />
       <div className='row'>
         <div className='card col-md-6 offset-md-3 offset-md-3'>
