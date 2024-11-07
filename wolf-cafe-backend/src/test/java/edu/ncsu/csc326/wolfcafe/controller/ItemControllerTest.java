@@ -102,6 +102,17 @@ public class ItemControllerTest {
                 .andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+
+        final ItemDto duplicateDto = new ItemDto();
+        duplicateDto.setName( ITEM_NAME );
+        duplicateDto.setDescription( ITEM_DESCRIPTION );
+        duplicateDto.setPrice( ITEM_PRICE );
+
+        final String json1 = MAPPER.writeValueAsString( duplicateDto );
+
+        mvc.perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
+                .content( json1 ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isConflict() );
+
     }
 
     /**
@@ -151,6 +162,11 @@ public class ItemControllerTest {
                 .andExpect( status().isOk() ).andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+
+        // Test getting an item that does not exist
+        mvc.perform( get( API_PATH + "/" + 123123L ).contentType( MediaType.APPLICATION_JSON )
+                .characterEncoding( ENCODING ).content( json ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 
     /**
@@ -198,6 +214,10 @@ public class ItemControllerTest {
         // Verify the old item id no longer exists
         mvc.perform( get( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isNotFound() );
+
+        // Test deleting an item that does not exist
+        mvc.perform( delete( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 
     /**
@@ -232,5 +252,9 @@ public class ItemControllerTest {
                 .andExpect( jsonPath( "$.id" ).value( itemId ) ).andExpect( jsonPath( "$.name" ).value( "Mocha" ) )
                 .andExpect( jsonPath( "$.description" ).value( "idk what a Mocha is I don't drink coffee" ) )
                 .andExpect( jsonPath( "$.price" ).value( 19.99 ) );
+
+        // Test updating an item that does not exist
+        mvc.perform( get( API_PATH + "/" + 234523L ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 }
