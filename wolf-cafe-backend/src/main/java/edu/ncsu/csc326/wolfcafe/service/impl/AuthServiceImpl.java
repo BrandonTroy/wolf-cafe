@@ -86,6 +86,25 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public JwtAuthResponse login ( final LoginDto loginDto ) {
+        // Guest Login
+        if ( loginDto.getUsernameOrEmail().equals( "guest-user" ) && loginDto.getPassword().equals( "guest" ) ) {
+            User guestUser = userRepository.findByUsername( "guest-user" ).orElse( null );
+            if ( guestUser == null ) {
+                guestUser = new User();
+                guestUser.setName( "Guest User" );
+                guestUser.setEmail( "guest@guest.edu" );
+                guestUser.setUsername( "guest-user" );
+                guestUser.setPassword( loginDto.getPassword() );
+                guestUser.setRole( Role.GUEST );
+                userRepository.save( guestUser );
+            }
+
+            JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+            jwtAuthResponse.setRole( "ROLE_GUEST" );
+            jwtAuthResponse.setAccessToken( jwtTokenProvider.generateTokenGuest( guestUser ) );
+            return jwtAuthResponse;
+        }
+
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken( loginDto.getUsernameOrEmail(), loginDto.getPassword() ) );
 
@@ -107,6 +126,7 @@ public class AuthServiceImpl implements AuthService {
         jwtAuthResponse.setAccessToken( token );
 
         return jwtAuthResponse;
+
     }
 
     /**
