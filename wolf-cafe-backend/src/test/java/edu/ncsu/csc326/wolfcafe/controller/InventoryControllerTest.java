@@ -64,8 +64,10 @@ public class InventoryControllerTest {
     @Transactional
     @WithMockUser ( username = "joe schmoe" )
     public void testGetInventory () throws Exception {
-        itemRepository.deleteAll();
         inventoryRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemRepository.flush();
+        inventoryRepository.flush();
         final InventoryDto expectedInventory = new InventoryDto();
 
         mvc.perform( get( "/api/inventory" ) )
@@ -90,8 +92,10 @@ public class InventoryControllerTest {
     @Transactional
     @WithMockUser ( username = "staff", roles = "STAFF" )
     public void testUpdateInventory () throws Exception {
-        itemRepository.deleteAll();
         inventoryRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemRepository.flush();
+        inventoryRepository.flush();
         final InventoryDto expectedInventory = new InventoryDto();
 
         final ItemDto newItem = itemService.addItem( new ItemDto( 0L, "Water", "H2O", 3.50 ) );
@@ -124,8 +128,10 @@ public class InventoryControllerTest {
     @Transactional
     @WithMockUser ( username = "staff", roles = "STAFF" )
     public void testUpdateInventoryNoEntry () throws Exception {
-        itemRepository.deleteAll();
         inventoryRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemRepository.flush();
+        inventoryRepository.flush();
         final InventoryDto expectedInventory = new InventoryDto();
 
         final ItemDto newItem = itemService.addItem( new ItemDto( 0L, "Water", "H2O", 3.50 ) );
