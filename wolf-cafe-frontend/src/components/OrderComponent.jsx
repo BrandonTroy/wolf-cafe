@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { getAllItems } from '../services/ItemService'
 import { order } from '../services/OrderService'
 import { OrderContext } from '../OrderContext'
+import PriceInput from './PriceInput'
 
 /** Provides functionality to order an item, pay for it, and receive change.*/
 const OrderComponent = () => {
@@ -9,7 +10,7 @@ const OrderComponent = () => {
   const { order, setOrder } = useContext(OrderContext)
   const [subTotal, setSubtotal] = useState(0)
   const [tax, setTax] = useState(0.02)
-  const [tip, setTip] = useState(0)
+  const [tip, setTip] = useState(0.15)
   const [isCustomTip, setIsCustomTip] = useState(false)
 
   useEffect(() => {
@@ -40,13 +41,13 @@ const OrderComponent = () => {
     setOrder(newOrder);
   }
 
-  function handleTipChange(e) {
+  function handleTipChange(e) {    
     const value = e.target.value;
     if (value === 'custom') {
       setTip(0);
       setIsCustomTip(true);
     } else {
-      setTip(parseFloat(value) * subTotal);
+      setTip(parseFloat(value));
       setIsCustomTip(false);
     }
   }
@@ -104,8 +105,9 @@ const OrderComponent = () => {
           <label htmlFor="tip" className="me-3">Add Tip:</label>
           <select
             id="tip"
-            className="form-select"
+            className="form-select me-3"
             style={{ width: 'auto' }}
+            value={isCustomTip ? 'custom' : tip}
             onChange={handleTipChange}
           >
             <option value="0">No Tip</option>
@@ -114,24 +116,21 @@ const OrderComponent = () => {
             <option value="0.2">20%</option>
             <option value="custom">Custom</option>
           </select>
-          <input
-            type="number"
-            className="form-control ms-3"
-            step="0.01"
-            style={{ width: 100 }}
-            value={(Math.round(tip * 100) / 100).toString()}
-            onChange={(e) => setTip(parseFloat(e.target.value))}
-            onBlur={() => setTip(tip || 0)}
+          <PriceInput
+            value={Math.round(tip * subTotal * 100) / 100}
+            onChange={(value) => setTip(value / subTotal)}
             disabled={!isCustomTip}
+            style={{ width: 100 }}
           />
+
         </div>
           
-        <div className='mt-4'>Final Total: <strong>${(subTotal * (1 + tax) + (tip || 0)).toFixed(2)}</strong></div>
+        <div className='mt-4'>Final Total: <strong>${(subTotal * (1 + tax + (tip || 0))).toFixed(2)}</strong></div>
 
         <button
           type="button"
           className="btn btn-primary mt-4"
-          onClick={() => makeOrder(order, subTotal * (1 + tax) + (tip || 0))}
+          onClick={() => makeOrder(order, subTotal * (1 + tax + (tip || 0)))}
         >
           Place Order
         </button>
