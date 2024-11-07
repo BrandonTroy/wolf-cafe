@@ -1,11 +1,12 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { isUserLoggedIn, logout } from '../services/AuthService'
+import { isUserAuthenticated, isAdminUser, isBaristaUser, isManagerUser, isCustomerUser, isGuestUser, logout } from '../services/AuthService'
 
 const HeaderComponent = () => {
 	
-	const isAuth = isUserLoggedIn()
+  const isAuth = isUserAuthenticated()
+  const isLoggedIn = isAuth && !isGuestUser()
 
 	function handleLogout() {
 	  logout()
@@ -17,7 +18,7 @@ const HeaderComponent = () => {
   return (
     <div>
       <header>
-        <nav className='navbar navbar-expand-md navbar-dark bg-dark'>
+        <nav className='navbar navbar-expand-md navbar-dark bg-dark px-3'>
           <div>
             <a href='http://localhost:3000' className='navbar-brand'>
               WolfCafe
@@ -25,34 +26,52 @@ const HeaderComponent = () => {
           </div>
           <div className='collapse navbar-collapse'>
             {
-              isAuth &&<ul className='navbar-nav'>
-                <li className='nav-item'>
-                  <NavLink to='/items' className='nav-link'>Items</NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/inventory' className='nav-link'>Inventory</NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/order' className='nav-link'>Order</NavLink>
-                </li>
+              isAuth && <ul className='navbar-nav'>
+                {!isAdminUser() &&
+                  <li className='nav-item'>
+                    <NavLink to='/items' className='nav-link'>Items</NavLink>
+                  </li>
+                }
+                {(isManagerUser() || isBaristaUser()) &&
+                  <li className='nav-item'>
+                    <NavLink to='/inventory' className='nav-link'>Inventory</NavLink>
+                  </li>
+                }
+                {(isCustomerUser() || isGuestUser()) &&
+                  <li className='nav-item'>
+                    <NavLink to='/order' className='nav-link'>Order</NavLink>
+                  </li>
+                }
+                {
+                  isAdminUser() &&
+                  <li className='nav-item'>
+                    <NavLink to='/users' className='nav-link'>Users</NavLink>
+                  </li>
+                }
+                {
+                  isAdminUser() &&
+                  <li className='nav-item'>
+                    <NavLink to='/tax' className='nav-link'>Tax</NavLink>
+                  </li>
+                }
               </ul>
             } 
           </div>
           <ul className='navbar-nav'>
             {
-              !isAuth && 
+              !isLoggedIn && 
               <li className='nav-item'>
                 <NavLink to='/register' className='nav-link'>Register</NavLink>
               </li>
             }
             {
-              !isAuth &&
+              !isLoggedIn &&
               <li className='nav-item'>
                 <NavLink to='/login' className='nav-link'>Login</NavLink>
               </li>
             } 
             {
-              isAuth &&
+              isLoggedIn &&
               <li className='nav-item'>
                 <NavLink to='/login' className='nav-link' onClick={handleLogout}>Logout</NavLink>
               </li>

@@ -36,3 +36,5 @@ build/
 /src/main/resources/application.properties
 /src/test/resources/application.properties
 /bin/
+/.checkstyle
+/.pmd

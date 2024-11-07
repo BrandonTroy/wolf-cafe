@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getAllItems } from '../services/ItemService';
 import { getInventory, updateInventory } from '../services/InventoryService'
+import NotificationPopup from './NotificationPopup'
 
 /** Creates the page for updating the inventory. */
 const InventoryComponent = () => {
@@ -8,7 +9,7 @@ const InventoryComponent = () => {
   const [items, setItems] = useState([])
   const [inventory, setInventory] = useState([])
   const [quantityAdded, setQuantityAdded] = useState({})
-  const [successMessage, setSuccessMessage] = useState('')
+  const [message, setMessage] = useState({type: "none", content:""})
 
   useEffect(() => {
     getAllItems().then((response) => {
@@ -35,44 +36,40 @@ const InventoryComponent = () => {
     updateInventory({ itemQuantities: quantityAdded }).then((response) => {
       console.log(response.data)
       setInventory(response.data.itemQuantities)
-      const resetQuantities = Object.keys(response.data.itemQuantities).reduce((acc, item) => {
-        acc[item.id] = 0
+      const resetQuantities = Object.keys(response.data.itemQuantities).reduce((acc, id) => {
+        acc[id] = 0
         return acc
       }, {})
       setQuantityAdded(resetQuantities)
-      setSuccessMessage('Addition Success!')
+	  setMessage({type:"success", content: "Inventory added."});
     }).catch(error => {
       console.error(error)
+	  setMessage({type:"error", content: "Input must be a number."});
     })
   }
 
   function validateForm() {
-    const errors = []
-
-    for (const [key, value] of Object.entries(quantityAdded)) {
+    for (const value of Object.values(quantityAdded)) {
       if (value < 0) {
-        errors.push(`Error: The amount of ${key} must be a positive integer.`)
+		setMessage({type:"error", content: "Cannot add a negative quantity."});
+		return false;
       }
     }
 
     if (Object.values(quantityAdded).every(value => value === 0)) {
-      errors.push("Error: Add at least one ingredient.")
+		setMessage({type:"error", content: "Add at least one item."});
+		return false;
     }
 
-    if (errors.length) alert(errors.join("\n"))
-
-    return errors.length == 0
+    return true;
   }
 
 
   return (
     <div className="container">
-      <br /><br />
-      {successMessage && (
-        <p style={{ color: 'green', fontSize: '30px', fontWeight: 'bold' }}>
-          {successMessage}
-        </p>
-      )}
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+	  <br />
       <h2 className="mb-4">Inventory</h2>
 
       <table className="table table-striped table-bordered text-start">

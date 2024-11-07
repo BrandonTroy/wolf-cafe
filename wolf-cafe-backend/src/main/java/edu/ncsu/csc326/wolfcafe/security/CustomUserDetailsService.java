@@ -1,6 +1,8 @@
 package edu.ncsu.csc326.wolfcafe.security;
 
-import lombok.AllArgsConstructor;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,10 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import edu.ncsu.csc326.wolfcafe.entity.User;
+import edu.ncsu.csc326.wolfcafe.mapper.RoleMapper;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
-
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 
 /**
  * Supports finding and logging in a user by username or email.
@@ -21,27 +22,26 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	/** Link to userRepository */
-    private UserRepository userRepository;
+    /** Link to userRepository */
+    private final UserRepository userRepository;
 
     /**
-     * Returns UserDetails for the user associated with the username or email address.
-     * @param usernameOrEmail username or email to search for
+     * Returns UserDetails for the user associated with the username or email
+     * address.
+     *
+     * @param usernameOrEmail
+     *            username or email to search for
      * @return UserDetails object representing the user.
      */
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exist with the given username or email."));
+    public UserDetails loadUserByUsername ( final String usernameOrEmail ) throws UsernameNotFoundException {
+        final User user = userRepository.findByUsernameOrEmail( usernameOrEmail, usernameOrEmail ).orElseThrow(
+                () -> new UsernameNotFoundException( "User does not exist with the given username or email." ) );
 
-        Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map((role) -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toSet());
+        final Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        authorities.add( new SimpleGrantedAuthority( RoleMapper.toString( user.getRole() ) ) );
 
-        return new org.springframework.security.core.userdetails.User(
-                usernameOrEmail,
-                user.getPassword(),
-                authorities
-        );
+        return new org.springframework.security.core.userdetails.User( usernameOrEmail, user.getPassword(),
+                authorities );
     }
 }

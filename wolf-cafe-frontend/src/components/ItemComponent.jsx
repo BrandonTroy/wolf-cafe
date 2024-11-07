@@ -2,12 +2,16 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { getItemById, saveItem, updateItem } from '../services/ItemService'
 import { useNavigate, useParams } from 'react-router-dom'
+import NotificationPopup from './NotificationPopup'
+import PriceInput from './PriceInput'
 
-const TodoComponent = () => {
+const ItemComponent = () => {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-	const [price, setPrice] = useState('')
+  const [price, setPrice] = useState('')
+  const [message, setMessage] = useState({type: "none", content:""})
+
   const { id } = useParams()
 
   const navigate = useNavigate()
@@ -35,6 +39,11 @@ const TodoComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
+		if (error.status === 409) {
+		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
+		} else {
+		  setMessage({type:"error", content: "Could not update item. Check your connection."});
+		}
         console.error(error)
       })
     } else {
@@ -42,6 +51,11 @@ const TodoComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
+		if (error.status === 409) {
+		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
+		} else {
+		  setMessage({type:"error", content: "Could not create item. Check your connection."});
+		}
         console.error(error)
       })
     }
@@ -57,13 +71,15 @@ const TodoComponent = () => {
 
   return (
     <div className='container'>
-      <br /> <br />
+      <br />
+	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+      <br />
       <div className='row'>
         <div className='card col-md-6 offset-md-3 offset-md-3'>
           { pageTitle() }
           
           <div className='card-body'>
-            <form>
+            <form onSubmit={(e) => saveOrUpdateItem(e)}>
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Name:</label>
                 <input 
@@ -73,6 +89,7 @@ const TodoComponent = () => {
                   name='name'
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  required
                 >
                 </input>
               </div>
@@ -85,25 +102,23 @@ const TodoComponent = () => {
                   placeholder='Enter Item Description'
                   name='description'
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setDescription(e.target.value.substring(0, Math.min(300, e.target.value.length)))}
+                  required
                 >
                 </input>
               </div>
 
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Price:</label>
-                <input 
-                  type='text'
-                  className='form-control'
-                  placeholder='Enter Item Price'
-                  name='price'
+                <PriceInput
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                >
-                </input>
+                  onChange={value => setPrice(value)}
+                  placeholder='Enter Item Price'
+                  required
+                />
               </div>
 
-              <button type='submit' className='btn btn-success' onClick={(e) => saveOrUpdateItem(e)}>Submit</button>
+              <button type='submit' className='btn btn-success'>Submit</button>
             </form>
           </div>
         </div>
@@ -112,4 +127,4 @@ const TodoComponent = () => {
   )
 }
 
-export default TodoComponent
+export default ItemComponent
