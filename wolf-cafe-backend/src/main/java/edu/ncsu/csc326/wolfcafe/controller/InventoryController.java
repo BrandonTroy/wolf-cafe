@@ -37,7 +37,6 @@ public class InventoryController {
      * @return response to the request
      */
     @GetMapping
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'ADMIN')" )
     public ResponseEntity<InventoryDto> getInventory () {
         final InventoryDto inventoryDto = inventoryService.getInventory();
         return ResponseEntity.ok( inventoryDto );
