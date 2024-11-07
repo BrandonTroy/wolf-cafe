@@ -77,6 +77,7 @@ public class ItemControllerTest {
      */
     @BeforeEach
     public void setUp () {
+        // Delete all items in the current repository
         itemRepository.deleteAll();
     }
 
@@ -87,7 +88,7 @@ public class ItemControllerTest {
      *             in case of an unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "MANAGER" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testCreateItem () throws Exception {
         // Create ItemDto with all contents but the id
         final ItemDto itemDto = new ItemDto();
@@ -102,6 +103,17 @@ public class ItemControllerTest {
                 .andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+
+        final ItemDto duplicateDto = new ItemDto();
+        duplicateDto.setName( ITEM_NAME );
+        duplicateDto.setDescription( ITEM_DESCRIPTION );
+        duplicateDto.setPrice( ITEM_PRICE );
+
+        final String json1 = MAPPER.writeValueAsString( duplicateDto );
+
+        mvc.perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
+                .content( json1 ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isConflict() );
+
     }
 
     /**
@@ -131,7 +143,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "MANAGER" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testGetItemById () throws Exception {
         final ItemDto itemDto = new ItemDto();
         itemDto.setName( ITEM_NAME );
@@ -151,6 +163,11 @@ public class ItemControllerTest {
                 .andExpect( status().isOk() ).andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
+
+        // Test getting an item that does not exist
+        mvc.perform( get( API_PATH + "/" + 123123L ).contentType( MediaType.APPLICATION_JSON )
+                .characterEncoding( ENCODING ).content( json ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 
     /**
@@ -160,7 +177,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "MANAGER" )
+    @WithMockUser ( username = "customer", roles = "CUSTOMER" )
     public void testGetItems () throws Exception {
         final String items = mvc.perform( get( API_PATH ) ).andDo( print() ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
@@ -175,7 +192,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "MANAGER" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testDeleteItem () throws Exception {
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
 
@@ -198,6 +215,10 @@ public class ItemControllerTest {
         // Verify the old item id no longer exists
         mvc.perform( get( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isNotFound() );
+
+        // Test deleting an item that does not exist
+        mvc.perform( delete( API_PATH + "/" + itemId ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 
     /**
@@ -208,7 +229,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "MANAGER" )
+    @WithMockUser ( username = "admin", roles = "ADMIN" )
     public void testUpdateItem () throws Exception {
         // Create initial item
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
@@ -232,5 +253,10 @@ public class ItemControllerTest {
                 .andExpect( jsonPath( "$.id" ).value( itemId ) ).andExpect( jsonPath( "$.name" ).value( "Mocha" ) )
                 .andExpect( jsonPath( "$.description" ).value( "idk what a Mocha is I don't drink coffee" ) )
                 .andExpect( jsonPath( "$.price" ).value( 19.99 ) );
+
+        // Test updating an item that does not exist
+        mvc.perform( put( API_PATH + "/" + 1345663L ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( updatedItemDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() );
     }
 }

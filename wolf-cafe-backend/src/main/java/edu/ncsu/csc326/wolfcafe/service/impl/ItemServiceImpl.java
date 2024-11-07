@@ -47,6 +47,9 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public ItemDto addItem ( final ItemDto itemDto ) {
+        if ( itemRepository.findByName( itemDto.getName() ) != null ) {
+            throw new IllegalArgumentException( "Item with the same name already exists" );
+        }
         final Item item = modelMapper.map( itemDto, Item.class );
         final Item savedItem = itemRepository.save( item );
 
