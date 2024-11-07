@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
+import edu.ncsu.csc326.wolfcafe.entity.Item;
+import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import lombok.AllArgsConstructor;
 
@@ -23,71 +25,93 @@ import lombok.AllArgsConstructor;
  * Controller for API endpoints for an Item
  */
 @RestController
-@RequestMapping("api/items")
+@RequestMapping ( "api/items" )
 @AllArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin ( "*" )
 public class ItemController {
 
-	/** Link to ItemService */
-    private final ItemService itemService;
+    /** Link to ItemService */
+    private final ItemService    itemService;
 
     /**
-     * Adds an item to the list of items.  Requires the STAFF role.
-     * @param itemDto item to add
+     * Connection to ItemRepository for dealing with the items table in the
+     * database
+     */
+    private final ItemRepository itemRepository;
+
+    /**
+     * Adds an item to the list of items. Requires the STAFF role.
+     *
+     * @param itemDto
+     *            item to add
      * @return added item
      */
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
     @PostMapping
-    public ResponseEntity<ItemDto> addItem(@RequestBody ItemDto itemDto) {
-        ItemDto savedItem = itemService.addItem(itemDto);
-        return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+    public ResponseEntity<ItemDto> addItem ( @RequestBody final ItemDto itemDto ) {
+        for ( final Item item : itemRepository.findAll() ) {
+            if ( item.getName().equals( itemDto.getName() ) ) {
+                return new ResponseEntity<>( itemDto, HttpStatus.CONFLICT );
+            }
+        }
+        final ItemDto savedItem = itemService.addItem( itemDto );
+        return new ResponseEntity<>( savedItem, HttpStatus.CREATED );
     }
 
     /**
-     * Gets an item by id.  Requires the STAFF or CUSTOMER role.
-     * @param id item id
-     * @return item with the id 
+     * Gets an item by id. Requires the STAFF or CUSTOMER role.
+     *
+     * @param id
+     *            item id
+     * @return item with the id
      */
-    @PreAuthorize("hasAnyRole('STAFF', 'CUSTOMER')")
-    @GetMapping("{id}")
-    public ResponseEntity<ItemDto> getItem(@PathVariable("id") Long id) {
-        ItemDto item = itemService.getItem(id);
-        return ResponseEntity.ok(item);
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
+    @GetMapping ( "{id}" )
+    public ResponseEntity<ItemDto> getItem ( @PathVariable ( "id" ) final Long id ) {
+        final ItemDto item = itemService.getItem( id );
+        return ResponseEntity.ok( item );
     }
 
     /**
-     * Returns all items.  Requires the STAFF or CUSTOMER role.
+     * Returns all items. Requires the STAFF or CUSTOMER role.
+     *
      * @return a list of all items
      */
-    @PreAuthorize("hasAnyRole('STAFF', 'CUSTOMER')")
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
     @GetMapping
-    public ResponseEntity<List<ItemDto>> getAllItems() {
-        List<ItemDto> items = itemService.getAllItems();
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<ItemDto>> getAllItems () {
+        final List<ItemDto> items = itemService.getAllItems();
+        return ResponseEntity.ok( items );
     }
 
     /**
-     * Updates the item with the given id.  Requires STAFF role.
-     * @param id item to update
-     * @param itemDto information about the item to update
+     * Updates the item with the given id. Requires STAFF role.
+     *
+     * @param id
+     *            item to update
+     * @param itemDto
+     *            information about the item to update
      * @return updated item
      */
-    @PreAuthorize("hasRole('STAFF')")
-    @PutMapping("{id}")
-    public ResponseEntity<ItemDto> updateItem(@PathVariable("id") Long id, @RequestBody ItemDto itemDto) {
-        ItemDto updatedItem = itemService.updateItem(id, itemDto);
-        return ResponseEntity.ok(updatedItem);
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PutMapping ( "{id}" )
+    public ResponseEntity<ItemDto> updateItem ( @PathVariable ( "id" ) final Long id,
+            @RequestBody final ItemDto itemDto ) {
+        final ItemDto updatedItem = itemService.updateItem( id, itemDto );
+        return ResponseEntity.ok( updatedItem );
     }
 
     /**
-     * Deletes the item with the given id.  Requires the STAFF role.
-     * @param id item to delete
+     * Deletes the item with the given id. Requires the STAFF role.
+     *
+     * @param id
+     *            item to delete
      * @return response indicating success or failure
      */
-    @PreAuthorize("hasRole('STAFF')")
-    @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteItem(@PathVariable("id") Long id) {
-        itemService.deleteItem(id);
-        return ResponseEntity.ok("Item deleted successfully");
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @DeleteMapping ( "{id}" )
+    public ResponseEntity<String> deleteItem ( @PathVariable ( "id" ) final Long id ) {
+        itemService.deleteItem( id );
+        return ResponseEntity.ok( "Item deleted successfully" );
     }
 }

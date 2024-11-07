@@ -39,7 +39,7 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
-		if (error.code === 409) {
+		if (error.status === 409) {
 		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
 		} else {
 		  setMessage({type:"error", content: "Could not update item. Check your connection."});
@@ -51,7 +51,7 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
-		if (error.code === 409) {
+		if (error.status === 409) {
 		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
 		} else {
 		  setMessage({type:"error", content: "Could not create item. Check your connection."});

@@ -40,9 +40,9 @@ const RegisterComponent = () => {
       console.log(response.data)
     }).catch(error => {
       //if (error.response.data.message === "Username already exists.") {
-	  if (error.code === 409) {
+	  if (error.status === 409) {
 		setMessage({type:"error", content:"Username is already taken. Please choose another."})
-	  } else if (error.code === 400) {
+	  } else if (error.status === 400) {
 		setMessage({type:"error", content:"Email contains a disallowed character or invalid format. Please try another email."})
 	  } else {
 		setMessage({type:"error", content:"Registration failed. Check your network connection."})
