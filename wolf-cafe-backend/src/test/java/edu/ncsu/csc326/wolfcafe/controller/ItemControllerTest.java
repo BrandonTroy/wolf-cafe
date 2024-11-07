@@ -77,6 +77,7 @@ public class ItemControllerTest {
      */
     @BeforeEach
     public void setUp () {
+        // Delete all items in the current repository
         itemRepository.deleteAll();
     }
 
