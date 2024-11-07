@@ -87,7 +87,7 @@ public class ItemControllerTest {
      *             in case of an unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testCreateItem () throws Exception {
         // Create ItemDto with all contents but the id
         final ItemDto itemDto = new ItemDto();
@@ -142,7 +142,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testGetItemById () throws Exception {
         final ItemDto itemDto = new ItemDto();
         itemDto.setName( ITEM_NAME );
@@ -176,7 +176,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "customer", roles = "CUSTOMER" )
     public void testGetItems () throws Exception {
         final String items = mvc.perform( get( API_PATH ) ).andDo( print() ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
@@ -191,7 +191,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testDeleteItem () throws Exception {
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
 
@@ -228,7 +228,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "admin", roles = "ADMIN" )
     public void testUpdateItem () throws Exception {
         // Create initial item
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
