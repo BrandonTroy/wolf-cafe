@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import edu.ncsu.csc326.wolfcafe.service.UserService;
 
 /**
  * User service implementation
- * 
+ *
  * Referenced https://www.javatpoint.com/how-to-encrypt-password-in-java for
  * SHA-256 encryption for passwords
  *
@@ -28,150 +29,163 @@ import edu.ncsu.csc326.wolfcafe.service.UserService;
 @Service
 public class UserServiceImpl implements UserService {
 
-	/**
-	 * Connection to the users table in the database
-	 */
-	@Autowired
-	private UserRepository userRepository;
+    /**
+     * Connection to the users table in the database
+     */
+    @Autowired
+    private UserRepository userRepository;
 
-	@Override
-	public UserDto createUser(final UserDto userDto) throws NoSuchAlgorithmException {
-		if (isDuplicateUsername(userDto.getUsername())) {
-			throw new IllegalArgumentException("Duplicate username");
-		}
-		if (isDuplicateEmail(userDto.getEmail())) {
-			throw new IllegalArgumentException("Duplicate email");
-		}
+    @Override
+    public UserDto createUser ( final UserDto userDto ) throws NoSuchAlgorithmException {
+        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
+            throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
+        }
 
-		validateUserDto(userDto);
-		userDto.setPassword(toHexString(getSHA(userDto.getPassword())));
-		final User user = UserMapper.mapToUser(userDto);
-		final User savedUser = userRepository.save(user);
-		return UserMapper.mapToUserDto(savedUser);
-	}
+        validateUserDto( userDto );
+        userDto.setPassword( toHexString( getSHA( userDto.getPassword() ) ) );
+        final User user = UserMapper.mapToUser( userDto );
+        final User savedUser = userRepository.save( user );
+        return UserMapper.mapToUserDto( savedUser );
+    }
 
-	/**
-	 * Validates a user dto
-	 *
-	 * @param userDto the dto to be validated
-	 */
-	private void validateUserDto(final UserDto userDto) {
-		// Check username validity
-		if (!userDto.getUsername().matches("^[a-zA-Z0-9.]+$")) {
-			throw new IllegalArgumentException("Invalid username format");
-		}
+    /**
+     * Validates a user dto
+     *
+     * @param userDto
+     *            the dto to be validated
+     */
+    private void validateUserDto ( final UserDto userDto ) {
+        // Check name validity
+        if ( !userDto.getName().matches( "^[a-zA-Z.\\s\\-']+$" ) ) {
+            throw new IllegalArgumentException( "Invalid name format" );
+        }
 
-		// Check email validity
-		if (!userDto.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-			throw new IllegalArgumentException("Invalid email format");
-		}
+        // Check username validity
+        if ( !userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" ) ) {
+            throw new IllegalArgumentException( "Invalid username format" );
+        }
 
-		// Check password length
-		if (userDto.getPassword().length() < 8) {
-			throw new IllegalArgumentException("Password must be at least 8 characters long");
-		}
-	}
+        // Check email validity
+        if ( !userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ) ) {
+            throw new IllegalArgumentException( "Invalid email format" );
+        }
 
-	/**
-	 * Hashes a password into SHA-256 format
-	 * 
-	 * @param password the password to be hashed
-	 * @return the hashed password
-	 * @throws NoSuchAlgorithmException
-	 */
-	private static byte[] getSHA(String password) throws NoSuchAlgorithmException {
-		// MessageDigest instance for hashing using SHA256
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        // Check password length
+        if ( userDto.getPassword().length() < 8 ) {
+            throw new IllegalArgumentException( "Password must be at least 8 characters long" );
+        }
+    }
 
-		// digest() method called to calculate message digest of an input and return
-		// array of byte
-		return messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
-	}
+    /**
+     * Hashes a password into SHA-256 format
+     *
+     * @param password
+     *            the password to be hashed
+     * @return the hashed password
+     * @throws NoSuchAlgorithmException
+     *             if the hashing algorithm cannot be found
+     */
+    private static byte[] getSHA ( final String password ) throws NoSuchAlgorithmException {
+        // MessageDigest instance for hashing using SHA256
+        final MessageDigest messageDigest = MessageDigest.getInstance( "SHA-256" );
 
-	/**
-	 * Converts the hashed password to a hex string
-	 * 
-	 * @param hash the hashed password to be converted
-	 * @return the hex password string
-	 */
-	private static String toHexString(byte[] hash) {
-		// Convert byte array of hash into digest
-		BigInteger bigInteger = new BigInteger(1, hash);
+        // digest() method called to calculate message digest of an input and
+        // return
+        // array of byte
+        return messageDigest.digest( password.getBytes( StandardCharsets.UTF_8 ) );
+    }
 
-		// Convert the digest into hex value
-		StringBuilder password = new StringBuilder(bigInteger.toString(16));
+    /**
+     * Converts the hashed password to a hex string
+     *
+     * @param hash
+     *            the hashed password to be converted
+     * @return the hex password string
+     */
+    private static String toHexString ( final byte[] hash ) {
+        // Convert byte array of hash into digest
+        final BigInteger bigInteger = new BigInteger( 1, hash );
 
-		// Pad with leading zeros
-		while (password.length() < 32) {
-			password.insert(0, '0');
-		}
+        // Convert the digest into hex value
+        final StringBuilder password = new StringBuilder( bigInteger.toString( 16 ) );
 
-		return password.toString();
-	}
+        // Pad with leading zeros
+        while ( password.length() < 32 ) {
+            password.insert( 0, '0' );
+        }
 
-	@Override
-	public UserDto getUser(final Long id) {
-		final User user = userRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with id " + id));
-		return UserMapper.mapToUserDto(user);
-	}
+        return password.toString();
+    }
 
-	@Override
-	public List<UserDto> getUsersList() {
-		final List<User> users = userRepository.findAll();
-		return users.stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
-	}
+    @Override
+    public UserDto getUser ( final Long id ) {
+        final User user = userRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
+        return UserMapper.mapToUserDto( user );
+    }
 
-	@Override
-	public UserDto updateUser(final Long id, final UserDto userDto) {
+    @Override
+    public List<UserDto> getUsersList () {
+        final List<User> users = userRepository.findAll();
+        return users.stream().map( UserMapper::mapToUserDto ).collect( Collectors.toList() );
+    }
 
-		final User user = userRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with id " + id));
-		if (isDuplicateUsername(userDto.getUsername())) {
-			throw new IllegalArgumentException("Duplicate username");
-		}
-		if (isDuplicateEmail(userDto.getEmail())) {
-			throw new IllegalArgumentException("Duplicate email");
-		}
-		user.setUsername(userDto.getUsername());
-		user.setEmail(userDto.getEmail());
-		user.setRole(userDto.getRole());
+    @Override
+    public UserDto updateUser ( final Long id, final UserDto userDto ) {
 
-		final User savedUser = userRepository.save(user);
-		return UserMapper.mapToUserDto(savedUser);
-	}
+        final User user = userRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
+        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
+            throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
+        }
+        user.setName( userDto.getName() );
+        user.setUsername( userDto.getUsername() );
+        user.setEmail( userDto.getEmail() );
+        user.setRole( userDto.getRole() );
 
-	@Override
-	public void deleteUser(final Long id) {
-		final User user = userRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with id " + id));
-		userRepository.delete(user);
-	}
+        final User savedUser = userRepository.save( user );
+        return UserMapper.mapToUserDto( savedUser );
+    }
 
-	@Override
-	public UserDto getUserById(final Long userId) {
-		return getUser(userId); // Reuse the existing method
-	}
+    @Override
+    public void deleteUser ( final Long id ) {
+        final User user = userRepository.findById( id )
+                .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
+        userRepository.delete( user );
+    }
 
-	@Override
-	public UserDto getUserByUsername(final String userName) {
-		return userRepository.findByUsername(userName).map(UserMapper::mapToUserDto)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with username " + userName));
-	}
+    @Override
+    public UserDto getUserById ( final Long userId ) {
+        return getUser( userId ); // Reuse the existing method
+    }
 
-	@Override
-	public boolean isDuplicateUsername(final String userName) {
-		return userRepository.existsByUsername(userName);
-	}
+    @Override
+    public UserDto getUserByUsername ( final String userName ) {
+        return userRepository.findByUsername( userName ).map( UserMapper::mapToUserDto )
+                .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with username " + userName ) );
+    }
 
-	@Override
-	public UserDto getUserByEmail(final String userEmail) {
-		return userRepository.findByEmail(userEmail).map(UserMapper::mapToUserDto)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exist with email " + userEmail));
-	}
+    @Override
+    public boolean isDuplicateUsername ( final Long userId, final String userName ) {
+        final Optional<User> duplicate = userRepository.findByUsername( userName );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
+    }
 
-	@Override
-	public boolean isDuplicateEmail(final String userEmail) {
-		return userRepository.existsByEmail(userEmail);
-	}
+    @Override
+    public UserDto getUserByEmail ( final String userEmail ) {
+        return userRepository.findByEmail( userEmail ).map( UserMapper::mapToUserDto )
+                .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with email " + userEmail ) );
+    }
+
+    @Override
+    public boolean isDuplicateEmail ( final Long userId, final String userEmail ) {
+        final Optional<User> duplicate = userRepository.findByEmail( userEmail );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
+    }
 }

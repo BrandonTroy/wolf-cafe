@@ -42,7 +42,7 @@ public class AuthController {
      */
     @PostMapping ( "/register" )
     public ResponseEntity<String> register ( @RequestBody final RegisterDto registerDto ) {
-        if ( userService.isDuplicateUsername( registerDto.getUsername() ) ) {
+        if ( userService.isDuplicateUsername( -1L, registerDto.getUsername() ) ) {
             System.err.println( "Duplicate username" );
             return ResponseEntity.status( HttpStatus.CONFLICT ).body( "Duplicate username or email" );
         }
