@@ -229,7 +229,7 @@ public class ItemControllerTest {
      *             in case of unexpected error
      */
     @Test
-    @WithMockUser ( username = "admin", roles = "ADMIN" )
+    @WithMockUser ( username = "manager", roles = "MANAGER" )
     public void testUpdateItem () throws Exception {
         // Create initial item
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
