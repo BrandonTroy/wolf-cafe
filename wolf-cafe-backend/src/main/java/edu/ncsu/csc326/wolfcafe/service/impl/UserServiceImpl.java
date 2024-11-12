@@ -1,6 +1,11 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +21,9 @@ import edu.ncsu.csc326.wolfcafe.service.UserService;
 /**
  * User service implementation
  *
+ * Referenced https://www.javatpoint.com/how-to-encrypt-password-in-java for
+ * SHA-256 encryption for passwords
+ *
  * @author Karthik Nandakumar
  */
 @Service
@@ -28,13 +36,16 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public UserDto createUser ( final UserDto userDto ) {
-        if ( isDuplicateUsername( userDto.getUsername() ) ) {
+    public UserDto createUser ( final UserDto userDto ) throws NoSuchAlgorithmException {
+        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
             throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
         }
 
         validateUserDto( userDto );
-
+        userDto.setPassword( toHexString( getSHA( userDto.getPassword() ) ) );
         final User user = UserMapper.mapToUser( userDto );
         final User savedUser = userRepository.save( user );
         return UserMapper.mapToUserDto( savedUser );
@@ -47,13 +58,18 @@ public class UserServiceImpl implements UserService {
      *            the dto to be validated
      */
     private void validateUserDto ( final UserDto userDto ) {
+        // Check name validity
+        if ( !userDto.getName().matches( "^[a-zA-Z.\\s\\-']+$" ) ) {
+            throw new IllegalArgumentException( "Invalid name format" );
+        }
+
         // Check username validity
         if ( !userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" ) ) {
             throw new IllegalArgumentException( "Invalid username format" );
         }
 
         // Check email validity
-        if ( !userDto.getEmail().matches( "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$" ) ) {
+        if ( !userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ) ) {
             throw new IllegalArgumentException( "Invalid email format" );
         }
 
@@ -61,6 +77,47 @@ public class UserServiceImpl implements UserService {
         if ( userDto.getPassword().length() < 8 ) {
             throw new IllegalArgumentException( "Password must be at least 8 characters long" );
         }
+    }
+
+    /**
+     * Hashes a password into SHA-256 format
+     *
+     * @param password
+     *            the password to be hashed
+     * @return the hashed password
+     * @throws NoSuchAlgorithmException
+     *             if the hashing algorithm cannot be found
+     */
+    private static byte[] getSHA ( final String password ) throws NoSuchAlgorithmException {
+        // MessageDigest instance for hashing using SHA256
+        final MessageDigest messageDigest = MessageDigest.getInstance( "SHA-256" );
+
+        // digest() method called to calculate message digest of an input and
+        // return
+        // array of byte
+        return messageDigest.digest( password.getBytes( StandardCharsets.UTF_8 ) );
+    }
+
+    /**
+     * Converts the hashed password to a hex string
+     *
+     * @param hash
+     *            the hashed password to be converted
+     * @return the hex password string
+     */
+    private static String toHexString ( final byte[] hash ) {
+        // Convert byte array of hash into digest
+        final BigInteger bigInteger = new BigInteger( 1, hash );
+
+        // Convert the digest into hex value
+        final StringBuilder password = new StringBuilder( bigInteger.toString( 16 ) );
+
+        // Pad with leading zeros
+        while ( password.length() < 32 ) {
+            password.insert( 0, '0' );
+        }
+
+        return password.toString();
     }
 
     @Override
@@ -81,10 +138,15 @@ public class UserServiceImpl implements UserService {
 
         final User user = userRepository.findById( id )
                 .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
+        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
+            throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
+        }
         user.setName( userDto.getName() );
         user.setUsername( userDto.getUsername() );
         user.setEmail( userDto.getEmail() );
-        user.setPassword( userDto.getPassword() );
         user.setRole( userDto.getRole() );
 
         final User savedUser = userRepository.save( user );
@@ -110,8 +172,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isDuplicateUsername ( final String userName ) {
-        return userRepository.existsByUsername( userName );
+    public boolean isDuplicateUsername ( final Long userId, final String userName ) {
+        final Optional<User> duplicate = userRepository.findByUsername( userName );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
     }
 
     @Override
@@ -120,8 +183,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with email " + userEmail ) );
     }
 
-    // @Override
-    // public boolean isDuplicateEmail ( final String userEmail ) {
-    // return userRepository.existsByEmail( userEmail );
-    // }
+    @Override
+    public boolean isDuplicateEmail ( final Long userId, final String userEmail ) {
+        final Optional<User> duplicate = userRepository.findByEmail( userEmail );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
+    }
 }
