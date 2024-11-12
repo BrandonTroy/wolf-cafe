@@ -133,8 +133,32 @@ public class UserControllerTest {
 		mvc.perform(put("/api/users/{id}", userRepository.findByUsername("knandak").get().getId())
 				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Karthik Nandakumar"))
 				.andExpect(jsonPath("$.username").value("karthik"))
 				.andExpect(jsonPath("$.email").value("newemail@ncsu.edu"));
+
+		final UserDto userDto1 = new UserDto(2L, "", "", "", "", Role.BARISTA);
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto1))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+		final UserDto userDto2 = new UserDto(3L, "", "rthinsha", "rthinsha@ncsu.edu", "bfjksbfkjsbs", Role.BARISTA);
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto2))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+		final UserDto userDto3 = new UserDto(4L, "Ryan Hinshaw", ";[].;.;;[';.", "rthinsha@ncsu.edu", "bfjksbfkjsbs",
+				Role.BARISTA);
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto3))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+		final UserDto userDto4 = new UserDto(5L, "Ryan Hinshaw", "rthinsha", "rthi@nsha@ncsu.edu", "bfjksbfkjsbs",
+				Role.BARISTA);
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto4))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+		final UserDto userDto5 = new UserDto(6L, "djsbksjbfk", ".;''[;.'.", "rthi@nsha@ncsu.edu", "bfjksbfkjsbs",
+				Role.BARISTA);
+		mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto5))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
 	}
 
 	/**

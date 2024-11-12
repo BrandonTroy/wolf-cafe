@@ -3,6 +3,7 @@ package edu.ncsu.csc326.wolfcafe.service.impl;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -120,13 +121,14 @@ public class UserServiceImplTest {
 				() -> assertEquals("ROLE_BARISTA", RoleMapper.toString(updatedUser.getRole())));
 		// Test for duplicate username
 		userDto.setUsername("rthinsha");
+		assertTrue(userService.isDuplicateUsername(userDto1.getId(), userDto1.getUsername()));
 		Exception e1 = assertThrows(IllegalArgumentException.class,
-				() -> userService.updateUser(savedUser1.getId(), userDto));
+				() -> userService.updateUser(savedUser.getId(), userDto));
 		assertEquals("Duplicate username", e1.getMessage());
 		// Test for duplicate email
 		userDto.setUsername("knandak");
 		userDto.setEmail("rthinsha@ncsu.edu");
-		e1 = assertThrows(IllegalArgumentException.class, () -> userService.updateUser(savedUser1.getId(), userDto));
+		e1 = assertThrows(IllegalArgumentException.class, () -> userService.updateUser(savedUser.getId(), userDto));
 		assertEquals("Duplicate email", e1.getMessage());
 	}
 
