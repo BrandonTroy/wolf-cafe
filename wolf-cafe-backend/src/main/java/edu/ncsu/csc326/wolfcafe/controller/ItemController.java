@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
-import edu.ncsu.csc326.wolfcafe.entity.Item;
 import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import lombok.AllArgsConstructor;
@@ -47,7 +46,7 @@ public class ItemController {
      *            item to add
      * @return added item
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @PostMapping
     public ResponseEntity<ItemDto> addItem ( @RequestBody ItemDto itemDto ) {
         try {
@@ -66,7 +65,7 @@ public class ItemController {
      *            item id
      * @return item with the id
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST')" )
     @GetMapping ( "{id}" )
     public ResponseEntity<ItemDto> getItem ( @PathVariable ( "id" ) Long id ) {
         try {
@@ -83,7 +82,7 @@ public class ItemController {
      *
      * @return a list of all items
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST')" )
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAllItems () {
         final List<ItemDto> items = itemService.getAllItems();
@@ -99,7 +98,7 @@ public class ItemController {
      *            information about the item to update
      * @return updated item
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @PutMapping ( "{id}" )
     public ResponseEntity<ItemDto> updateItem ( @PathVariable ( "id" ) Long id, @RequestBody ItemDto itemDto ) {
         try {
@@ -118,7 +117,7 @@ public class ItemController {
      *            item to delete
      * @return response indicating success or failure
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @DeleteMapping ( "{id}" )
     public ResponseEntity<String> deleteItem ( @PathVariable ( "id" ) Long id ) {
         try {

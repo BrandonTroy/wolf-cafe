@@ -1,6 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import edu.ncsu.csc326.wolfcafe.service.ItemService;
 
 @SpringBootTest
 class InventoryServiceTest {
-	
+
     /**
      * Connection to the table of items to delete all items
      */
@@ -36,12 +36,12 @@ class InventoryServiceTest {
      */
     @Autowired
     private InventoryRepository inventoryRepository;
-    
+
     /**
      * Connection to inventory service for manipulating the Inventory model.
      */
     @Autowired
-    private InventoryService inventoryService;
+    private InventoryService    inventoryService;
 
     /**
      * Tests the PUT /api/inventory endpoint.
@@ -51,26 +51,26 @@ class InventoryServiceTest {
      */
     @Test
     @Transactional
-    @WithMockUser ( username = "staff", roles = "STAFF" )
+    @WithMockUser ( username = "barista", roles = "BARISTA" )
     public void testAddInventoryErrors () throws Exception {
         itemRepository.deleteAll();
-        inventoryRepository.deleteAll();
+        // inventoryRepository.deleteAll();
         final InventoryDto expectedInventory = new InventoryDto();
         final InventoryDto nullInventory = null;
-        
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.addInventory(nullInventory));
-        
+
+        assertThrows( IllegalArgumentException.class, () -> inventoryService.addInventory( nullInventory ) );
+
         final ItemDto newItem = itemService.addItem( new ItemDto( 0L, "Water", "H2O", 3.50 ) );
         final ItemDto newItem2 = itemService.addItem( new ItemDto( 0L, "Coffee", "Brown liquid", 5.50 ) );
         expectedInventory.getItemQuantities().put( newItem.getId(), 5 );
         expectedInventory.getItemQuantities().put( newItem2.getId(), 3 );
 
         final InventoryDto updates = new InventoryDto();
-        
+
         final ItemDto newItem3 = itemService.addItem( new ItemDto( 0L, "Error", "Negative amount", 7.50 ) );
         updates.getItemQuantities().put( newItem3.getId(), -2 );
-        
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.addInventory(updates));
+
+        assertThrows( IllegalArgumentException.class, () -> inventoryService.addInventory( updates ) );
     }
 
 }
