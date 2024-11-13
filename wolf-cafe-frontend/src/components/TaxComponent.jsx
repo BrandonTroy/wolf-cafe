@@ -48,7 +48,7 @@ const TaxComponent = () => {
             <form onSubmit={(e) => saveNewTax(e)}>
 
               <div className='form-group mb-2'>
-                <label className='form-label'>Rate:</label>
+                <label className='form-label'>Rate (as a percentage, ex 2 for 2.0%)</label>
                 <PriceInput
                   value={tax}
                   onChange={value => setTax(value)}
