@@ -11,6 +11,7 @@ import ItemComponent from './components/ItemComponent'
 import UserComponent from './components/UserComponent'
 import InventoryComponent from './components/InventoryComponent'
 import OrderComponent from './components/OrderComponent'
+import TaxComponent from './components/TaxComponent'
 import { OrderProvider } from './OrderContext'
 
 function App() {
@@ -53,7 +54,7 @@ function App() {
         <Route path='/order' element={<AuthenticatedRoute roleCheck={isCustomerUser() || isGuestUser()}><OrderComponent /></AuthenticatedRoute>} />
 		<Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
 		<Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
-        <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><div>TODO</div></AuthenticatedRoute>} />
+        <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><TaxComponent /></AuthenticatedRoute>} />
       </Routes>
       <FooterComponent />
       </BrowserRouter>
