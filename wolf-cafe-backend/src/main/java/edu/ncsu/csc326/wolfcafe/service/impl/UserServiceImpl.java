@@ -138,10 +138,10 @@ public class UserServiceImpl implements UserService {
 
         final User user = userRepository.findById( id )
                 .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
-        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
+        if ( isDuplicateUsername( id, userDto.getUsername() ) ) {
             throw new IllegalArgumentException( "Duplicate username" );
         }
-        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+        if ( isDuplicateEmail( id, userDto.getEmail() ) ) {
             throw new IllegalArgumentException( "Duplicate email" );
         }
         user.setName( userDto.getName() );
