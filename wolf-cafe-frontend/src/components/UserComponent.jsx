@@ -252,7 +252,7 @@ const UserComponent = () => {
 			  </div>
 
 			  <div className='row mb-3'>
-			    <label className='col-md-3 form-label'>Password:</label>
+			    {!id && <label className='col-md-3 form-label'>Password:</label>}
 			  <div className='col-md-9'>
                 {!id && <input 
                   /*originally was type='password', but admin is only user so it's fine to display as text*/
