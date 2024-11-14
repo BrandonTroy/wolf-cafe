@@ -1,14 +1,12 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -35,6 +33,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserDto createUser ( final UserDto userDto ) throws NoSuchAlgorithmException {
         if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
         }
 
         validateUserDto( userDto );
-        userDto.setPassword( toHexString( getSHA( userDto.getPassword() ) ) );
+        userDto.setPassword( passwordEncoder.encode( userDto.getPassword() ) );
         final User user = UserMapper.mapToUser( userDto );
         final User savedUser = userRepository.save( user );
         return UserMapper.mapToUserDto( savedUser );
@@ -77,47 +78,6 @@ public class UserServiceImpl implements UserService {
         if ( userDto.getPassword().length() < 8 ) {
             throw new IllegalArgumentException( "Password must be at least 8 characters long" );
         }
-    }
-
-    /**
-     * Hashes a password into SHA-256 format
-     *
-     * @param password
-     *            the password to be hashed
-     * @return the hashed password
-     * @throws NoSuchAlgorithmException
-     *             if the hashing algorithm cannot be found
-     */
-    private static byte[] getSHA ( final String password ) throws NoSuchAlgorithmException {
-        // MessageDigest instance for hashing using SHA256
-        final MessageDigest messageDigest = MessageDigest.getInstance( "SHA-256" );
-
-        // digest() method called to calculate message digest of an input and
-        // return
-        // array of byte
-        return messageDigest.digest( password.getBytes( StandardCharsets.UTF_8 ) );
-    }
-
-    /**
-     * Converts the hashed password to a hex string
-     *
-     * @param hash
-     *            the hashed password to be converted
-     * @return the hex password string
-     */
-    private static String toHexString ( final byte[] hash ) {
-        // Convert byte array of hash into digest
-        final BigInteger bigInteger = new BigInteger( 1, hash );
-
-        // Convert the digest into hex value
-        final StringBuilder password = new StringBuilder( bigInteger.toString( 16 ) );
-
-        // Pad with leading zeros
-        while ( password.length() < 32 ) {
-            password.insert( 0, '0' );
-        }
-
-        return password.toString();
     }
 
     @Override
