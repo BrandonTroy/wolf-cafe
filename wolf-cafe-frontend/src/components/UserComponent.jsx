@@ -75,7 +75,7 @@ const UserComponent = () => {
 	  setMessage({type:"error", content:"Username required. Please enter a username."})
 	  return
 	}
-	if (username == "" || username.search(/[^a-zA-Z0-9\.]/) > -1) {
+	if (username.search(/[^a-zA-Z0-9\.]/) > -1) {
 	  setMessage({type:"error", content:"Username can only contain letters, numbers, and periods."})
 	  return
 	}
@@ -89,10 +89,10 @@ const UserComponent = () => {
 	}
 	// For some reason this check for email does not appear to work
 	// It is alright though because the backend still catches this before the process is over
-    if (email == "" || email.search(/[^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$]/) > -1) {
-	  setMessage({type:"error", content:"Invalid email format."})
-	  return
-	}
+    //if (email == "" || email.search(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$]/) > -1) {
+	//  setMessage({type:"error", content:"Invalid email format."})
+	//  return
+	//}
 	if (password.length < 8) {
 	  setMessage({type:"error", content:"Password must be at least 8 characters long."})
 	  return
@@ -266,23 +266,7 @@ const UserComponent = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 >
-                </input>
-				}
-				{id && <input 
-                  /*originally was type='password', but admin is only user so it's fine to display as text*/
-				  type='text'
-				  /*required*/
-				  /*required={true}*/
-				  /*minLength={3}*/
-                  className='form-control'
-                  placeholder='Enter Password'
-                  name='password'
-                  value={password}
-                  disabled
-				  //onChange={(e) => setPassword(e.target.value)}
-                >
-                </input>
-				}
+                </input>}
 				</div>
               </div>
 			  

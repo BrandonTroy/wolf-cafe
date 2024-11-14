@@ -71,7 +71,7 @@ const ListUsersComponent = () => {
 					</thead>
 					<tbody>
 						{
-							users.map((user) => user.role != "ADMIN" &&
+							users.map((user) => (user.role != "ADMIN" && user.role != "GUEST") &&
 								<tr key={user.username}>
 									<td>{user.name}</td>
 									<td>{user.role[0] + user.role.substring(1).toLowerCase()}</td>
