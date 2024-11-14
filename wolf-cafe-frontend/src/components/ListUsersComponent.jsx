@@ -1,14 +1,17 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState } from 'react'
+//import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser } from '../services/AuthService'
 import { getUsersList, deleteUserById } from '../services/UserService'
+import NotificationPopup from './NotificationPopup'
 
 
 const ListUsersComponent = () => {
   const [users, setUsers] = useState([])
   const navigate = useNavigate()
+  const [message, setMessage] = useState({type: "none", content:""})
 	
 	useEffect(() => {
+      console.log("Users List:")
 	  listUsers()
 	}, [])
 
@@ -22,19 +25,23 @@ const ListUsersComponent = () => {
 	}
 	
 	function addNewUser() {
+		console.log("Adding User")
 		navigate('/add-user')
 	}
 	
 	function updateUser(id) {
-		console.log(id)
+		console.log("Updating User " + id)
 		navigate(`/update-user/${id}`)
 	}
 	
 	function deleteUser(id) {
-		console.log(id)
 		deleteUserById(id).then(() => {
+			setMessage({type:"success", content:"User " + id + " deleted successfully."})
+		    console.log("User " + id + " deleted successfully.")
+		    console.log("Users List:")
 			listUsers()
 		}).catch(error => {
+			setMessage({type:"error", content:"Delete user failed. Check your network connection."})
 			console.error(error)
 		})
   }
@@ -42,7 +49,9 @@ const ListUsersComponent = () => {
 	
 	return (
 		<div className='container'>
-      <br /> <br />
+		<br />
+		{message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+		<br />
       <div className='d-flex justify-content-between align-items-center'>
         <h2 className='text-center mx-auto mb-3'>Users</h2>
         {
@@ -62,9 +71,10 @@ const ListUsersComponent = () => {
 					</thead>
 					<tbody>
 						{
-							users.map((user) =>
-								<tr key={user.name}>
-									<td>{user.role}</td>
+							users.map((user) => user.role != "ADMIN" &&
+								<tr key={user.username}>
+									<td>{user.name}</td>
+									<td>{user.role[0] + user.role.substring(1).toLowerCase()}</td>
 									<td>{user.username}</td>
 									<td>{user.email}</td>
                   {<td>
