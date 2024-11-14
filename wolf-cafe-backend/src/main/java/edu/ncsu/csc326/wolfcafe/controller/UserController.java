@@ -1,5 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -26,128 +27,128 @@ import lombok.AllArgsConstructor;
  * @author Karthik Nandakumar
  */
 @RestController
-@RequestMapping ( "api/users" )
+@RequestMapping("api/users")
 @AllArgsConstructor
-@CrossOrigin ( "*" )
+@CrossOrigin("*")
 public class UserController {
 
-    /** Link to UserService */
-    private final UserService userService;
+	/** Link to UserService */
+	private final UserService userService;
 
-    /**
-     * Creates a user
-     *
-     * @param userDto
-     *            a user dto
-     * @return a UserDto object
-     */
-    @PreAuthorize ( "hasRole('ADMIN')" )
-    @PostMapping
-    public ResponseEntity<UserDto> createUser ( @RequestBody final UserDto userDto ) {
-        if ( userService.isDuplicateUsername( userDto.getUsername() ) ) {
-            System.err.println( "Duplicate username" );
-            return ResponseEntity.status( HttpStatus.CONFLICT ).body( userDto );
-        }
+	/**
+	 * Creates a user
+	 *
+	 * @param userDto a user dto
+	 * @return a UserDto object
+	 * @throws NoSuchAlgorithmException if password hash fails
+	 */
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping
+	public ResponseEntity<UserDto> createUser(@RequestBody final UserDto userDto) throws NoSuchAlgorithmException {
+		return validate("create", null, userDto);
+	}
 
-        if ( userDto.getUsername().trim().isEmpty() || userDto.getEmail().trim().isEmpty()
-                || userDto.getPassword().length() < 8 ) {
-            System.err.println( "Invalid input format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
+	/**
+	 * Updates a user
+	 *
+	 * @param id      id of the user dto
+	 * @param userDto the user dto
+	 * @return an updated user dto
+	 * @throws NoSuchAlgorithmException should never actually throw this because
+	 *                                  password is not hashed during an update
+	 *                                  since password is not editable
+	 */
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/{id}")
+	public ResponseEntity<UserDto> updateUser(@PathVariable("id") final long id, @RequestBody final UserDto userDto)
+			throws NoSuchAlgorithmException {
+		return validate("update", id, userDto);
+	}
 
-        final boolean isValidUsername = userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" );
-        final boolean isValidEmail = userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" );
+	/**
+	 * Validates the user dto
+	 * 
+	 * @param action  the action to take
+	 * @param id      the id of the use dto
+	 * @param userDto the user dto
+	 * @return a ResponseEntity of the user dto
+	 * @throws NoSuchAlgorithmException
+	 */
+	private ResponseEntity<UserDto> validate(final String action, final Long id, final UserDto userDto)
+			throws NoSuchAlgorithmException {
+		if (userService.isDuplicateUsername(userDto.getId(), userDto.getUsername())
+				|| userService.isDuplicateEmail(userDto.getId(), userDto.getEmail())) {
+			System.err.println("Duplicate username");
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(userDto);
+		}
 
-        if ( !isValidUsername || !isValidEmail ) {
-            System.err.println( "Invalid format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
+		if (userDto.getName().trim().isEmpty() || userDto.getUsername().trim().isEmpty()
+				|| userDto.getEmail().trim().isEmpty() || userDto.getPassword().trim().isEmpty()
+				|| userDto.getPassword().length() < 8) {
+			System.err.println("Invalid input format");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userDto);
+		}
 
-        final UserDto savedUserDto = userService.createUser( userDto );
-        return ResponseEntity.status( HttpStatus.CREATED ).body( savedUserDto );
-    }
+		final boolean isValidName = userDto.getName().matches("^[a-zA-Z.\\s\\-']+$");
+		final boolean isValidUsername = userDto.getUsername().matches("^[a-zA-Z0-9.]+$");
+		final boolean isValidEmail = userDto.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
-    /**
-     * Updates a user
-     *
-     * @param id
-     *            id of the user dto
-     * @param userDto
-     *            the user dto
-     * @return an updated user dto
-     */
-    @PreAuthorize ( "hasRole('ADMIN')" )
-    @PutMapping ( "/{id}" )
-    public ResponseEntity<UserDto> updateUser ( @PathVariable ( "id" ) final long id,
-            @RequestBody final UserDto userDto ) {
-        if ( userService.isDuplicateUsername( userDto.getUsername() ) ) {
-            System.err.println( "Duplicate username" );
-            return ResponseEntity.status( HttpStatus.CONFLICT ).body( userDto );
-        }
+		if (!isValidName || !isValidUsername || !isValidEmail) {
+			System.err.println("Invalid format");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userDto);
+		}
 
-        if ( userDto.getUsername().trim().isEmpty() || userDto.getEmail().trim().isEmpty()
-                || userDto.getPassword().length() < 8 ) {
-            System.err.println( "Invalid input format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
+		if ("create".equals(action)) {
+			final UserDto savedUserDto = userService.createUser(userDto);
+			return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDto);
+		} else {
+			final UserDto editedUserDto = userService.updateUser(id, userDto);
+			return ResponseEntity.ok(editedUserDto);
+		}
+	}
 
-        final boolean isValidUsername = userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" );
-        final boolean isValidEmail = userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" );
+	/**
+	 * Gets a user dto with the given id
+	 *
+	 * @param id the id of the user dto to find
+	 * @return a user dto
+	 */
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/{id}")
+	public ResponseEntity<UserDto> getUser(@PathVariable final long id) {
+		final UserDto userDto = userService.getUserById(id);
+		if (userDto == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+		return ResponseEntity.ok(userDto);
+	}
 
-        if ( !isValidUsername || !isValidEmail ) {
-            System.err.println( "Invalid format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
+	/**
+	 * Deletes a user dto with the given id
+	 *
+	 * @param id the id of the user dto to be deleted
+	 * @return status
+	 */
+	@PreAuthorize("hasRole('ADMIN')")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteUser(@PathVariable final long id) {
+		try {
+			userService.deleteUser(id);
+			return ResponseEntity.ok("User deleted successfully.");
+		} catch (final ResourceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+	}
 
-        final UserDto editedUserDto = userService.updateUser( id, userDto );
-        return ResponseEntity.ok( editedUserDto );
-    }
-
-    /**
-     * Gets a user dto with the given id
-     *
-     * @param id
-     *            the id of the user dto to find
-     * @return a user dto
-     */
-    @PreAuthorize ( "hasRole('ADMIN')" )
-    @GetMapping ( "/{id}" )
-    public ResponseEntity<UserDto> getUser ( @PathVariable final long id ) {
-        final UserDto userDto = userService.getUserById( id );
-        if ( userDto == null ) {
-            return ResponseEntity.status( HttpStatus.NOT_FOUND ).build();
-        }
-        return ResponseEntity.ok( userDto );
-    }
-
-    /**
-     * Deletes a user dto with the given id
-     *
-     * @param id
-     *            the id of the user dto to be deleted
-     * @return status
-     */
-    @PreAuthorize ( "hasRole('ADMIN')" )
-    @DeleteMapping ( "/{id}" )
-    public ResponseEntity<String> deleteUser ( @PathVariable final long id ) {
-        try {
-            userService.deleteUser( id );
-            return ResponseEntity.ok( "User deleted successfully." );
-        }
-        catch ( final ResourceNotFoundException e ) {
-            return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "User not found." );
-        }
-    }
-
-    /**
-     * Returns a list of user dtos
-     *
-     * @return a list of user dtos
-     */
-    @PreAuthorize ( "hasRole('ADMIN')" )
-    @GetMapping
-    public ResponseEntity<List<UserDto>> getUsersList () {
-        final List<UserDto> users = userService.getUsersList();
-        return ResponseEntity.ok( users );
-    }
+	/**
+	 * Returns a list of user dtos
+	 *
+	 * @return a list of user dtos
+	 */
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping
+	public ResponseEntity<List<UserDto>> getUsersList() {
+		final List<UserDto> users = userService.getUsersList();
+		return ResponseEntity.ok(users);
+	}
 }

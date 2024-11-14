@@ -1,5 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.service;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -18,8 +19,10 @@ public interface UserService {
      * @param userDto
      *            user to add
      * @return added user
+     * @throws NoSuchAlgorithmException
+     *             if hashing algorithm for password can't be found
      */
-    UserDto createUser ( UserDto userDto );
+    UserDto createUser ( UserDto userDto ) throws NoSuchAlgorithmException;
 
     /**
      * Gets user by id
@@ -58,7 +61,7 @@ public interface UserService {
 
     /**
      * Returns the user with the given id.
-     * 
+     *
      * @param userId
      *            user's id
      * @return the user with the given id
@@ -69,7 +72,7 @@ public interface UserService {
 
     /**
      * Returns the user with the given name
-     * 
+     *
      * @param userName
      *            user's name
      * @return the user with the given name.
@@ -80,16 +83,19 @@ public interface UserService {
 
     /**
      * Returns true if the user already exists in the database.
-     * 
+     *
+     * @param userId
+     *            id of user being checked (to avoid it being counted as a
+     *            duplicate of itself)
      * @param userName
      *            user's name to check
      * @return true if already in the database
      */
-    boolean isDuplicateUsername ( String userName );
+    boolean isDuplicateUsername ( Long userId, String userName );
 
     /**
      * Returns the user with the given email
-     * 
+     *
      * @param userEmail
      *            user's email
      * @return the user with the given email.
@@ -98,11 +104,15 @@ public interface UserService {
      */
     UserDto getUserByEmail ( String userEmail );
 
-    // /**
-    // * Returns true if the user already exists in the database.
-    // *
-    // * @param userEmail user's email to check
-    // * @return true if already in the database
-    // */
-    // boolean isDuplicateEmail(String userEmail);
+    /**
+     * Returns true if the user already exists in the database.
+     *
+     * @param userId
+     *            id of user being checked (to avoid it being counted as a
+     *            duplicate of itself)
+     * @param userEmail
+     *            user's email to check
+     * @return true if already in the database
+     */
+    boolean isDuplicateEmail ( Long userId, String userEmail );
 }
