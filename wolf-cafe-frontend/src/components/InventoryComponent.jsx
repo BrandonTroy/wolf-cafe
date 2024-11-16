@@ -95,7 +95,6 @@ const InventoryComponent = () => {
                   onChange={(e) => {
                     const value = e.target.value === '' ? '' : parseInt(e.target.value);
                     setQuantityAdded({ ...quantityAdded, [item.id]: value })
-                    setSuccessMessage('')
                   }}
                 />
               </td>
