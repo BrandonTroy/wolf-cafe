@@ -38,7 +38,18 @@ const OrderComponent = () => {
     }, 0))
   }, [items, order])
 
+  /** From Google AI overview for the search "checking for empty object javascript" */
+  function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+  }
+  
   function makeOrder(amtTipped) {
+	console.log(order.toString())
+	if (isEmpty(order)) {
+	  setMessage({type: "error", content: "Go to the items page to add items to your order."})
+	  return
+	}
+	
     const orderDto = {itemList: order, tip: amtTipped}
 	placeOrder(orderDto).then((response) => {
 	  setOrder({})
