@@ -102,7 +102,7 @@ const LoginComponent = () => {
                 </div>
 
                 <div className='form-group mb-3'>
-                  <button className='btn btn-primary' onClick={(e) => handleLoginForm(e)}>Submit</button>
+                  <button className='btn btn-primary' onClick={(e) => setMessage({ type: 'none', content: '' }) || handleLoginForm(e)}>Submit</button>
                 </div>
               </form>
 			  <button className='btn btn-secondary' onClick={() => coninueAsGuest()}>Continue as Guest</button>

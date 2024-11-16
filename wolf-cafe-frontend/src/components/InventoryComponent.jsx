@@ -103,7 +103,7 @@ const InventoryComponent = () => {
         </tbody>
       </table>
       <br />
-      <button className="btn btn-success" onClick={modifyInventory}>Add Inventory</button>
+      <button className="btn btn-success" onClick={() => setMessage({ type: 'none', content: '' }) || modifyInventory()}>Add Inventory</button>
     </div>
   )
 }

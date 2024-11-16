@@ -45,7 +45,7 @@ const TaxComponent = () => {
           <h2 className='text-center'>Update Sales Tax</h2>
           
           <div className='card-body'>
-            <form onSubmit={(e) => saveNewTax(e)}>
+            <form onSubmit={(e) => setMessage({ type: 'none', content: '' }) || saveNewTax(e)}>
 
               <div className='form-group mb-2'>
                 <label className='form-label'>Rate (as a percentage, ex 2 for 2.0%)</label>
