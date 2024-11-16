@@ -4,8 +4,9 @@ import axios from "axios"
 const REST_API_BASE_URL = "http://localhost:8080/api/order"
 
 /** POST Order - orders an item */
-export const order = (id, amtPaid) => axios.post(REST_API_BASE_URL + '/' + id, amtPaid, {
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+export const placeOrder = (orderDto) => axios.post(REST_API_BASE_URL, orderDto)
+//{
+//  headers: {
+//    'Content-Type': 'application/json'
+//  }
+//}
