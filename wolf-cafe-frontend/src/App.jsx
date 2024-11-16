@@ -52,8 +52,9 @@ function App() {
         <Route path='/update-item/:id' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
         <Route path='/inventory' element={<AuthenticatedRoute roleCheck={isManagerUser() || isBaristaUser()}><InventoryComponent /></AuthenticatedRoute>} />
         <Route path='/order' element={<AuthenticatedRoute roleCheck={isCustomerUser() || isGuestUser()}><OrderComponent /></AuthenticatedRoute>} />
-		<Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
-		<Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
+		    <Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
+		    <Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
+		    <Route path='/update-user/:id' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
         <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><TaxComponent /></AuthenticatedRoute>} />
       </Routes>
       <FooterComponent />

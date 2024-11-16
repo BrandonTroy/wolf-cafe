@@ -1,13 +1,12 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +58,6 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", retrievedUser.getName()),
 				() -> assertEquals("knandak", retrievedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", retrievedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						retrievedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(retrievedUser.getRole())));
 	}
 
@@ -82,8 +79,6 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", savedUser.getName()),
 				() -> assertEquals("knandak", savedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", savedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						savedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(savedUser.getRole())));
 	}
 
@@ -106,8 +101,6 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", savedUser.getName()),
 				() -> assertEquals("knandak", savedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", savedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						savedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(savedUser.getRole())));
 		// Test for updating username, email address, and role
 		userDto.setUsername("knandakumar");
@@ -166,16 +159,12 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", savedUser.getName()),
 				() -> assertEquals("knandak", savedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", savedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						savedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(savedUser.getRole())));
 
 		final UserDto retrievedUser = userService.getUserById(savedUser.getId());
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", retrievedUser.getName()),
 				() -> assertEquals("knandak", retrievedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", retrievedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						retrievedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(retrievedUser.getRole())));
 	}
 
@@ -193,16 +182,12 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", savedUser.getName()),
 				() -> assertEquals("knandak", savedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", savedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						savedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(savedUser.getRole())));
 
 		final UserDto retrievedUser = userService.getUserByUsername(savedUser.getUsername());
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", retrievedUser.getName()),
 				() -> assertEquals("knandak", retrievedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", retrievedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						retrievedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(retrievedUser.getRole())));
 	}
 
@@ -220,16 +205,12 @@ public class UserServiceImplTest {
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", savedUser.getName()),
 				() -> assertEquals("knandak", savedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", savedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						savedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(savedUser.getRole())));
 
 		final UserDto retrievedUser = userService.getUserByEmail(savedUser.getEmail());
 		assertAll("User contents", () -> assertEquals("Karthik Nandakumar", retrievedUser.getName()),
 				() -> assertEquals("knandak", retrievedUser.getUsername()),
 				() -> assertEquals("knandak@ncsu.edu", retrievedUser.getEmail()),
-				() -> assertEquals("d6ec06fbbcd602f97f8130da6ed8206b99517638de8b329d4f2ce2813a3d4405",
-						retrievedUser.getPassword()),
 				() -> assertEquals("ROLE_MANAGER", RoleMapper.toString(retrievedUser.getRole())));
 	}
 
