@@ -102,3 +102,15 @@ jobs:
             "false" \
             "0.7,0.9" \
             "red,yellow,green"
+
+      - name: Commit and push the badge files
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/badges/jacoco.svg
+          git add .github/badges/branches.svg
+          git commit -m "Update coverage badges" || echo "No changes to commit"
+          git push origin ${GITHUB_REF}  # Push to the current branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
