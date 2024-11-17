@@ -81,11 +81,6 @@ jobs:
         if: ${{ always() }}
         uses: engr-csc326-itrust/action-surefire-report@v1.02
 
-      - name: Generate coverage report
-        run: |
-          cd wolf-cafe-backend
-          mvn jacoco:report
-      
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
