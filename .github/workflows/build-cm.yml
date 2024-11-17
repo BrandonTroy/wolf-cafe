@@ -87,6 +87,7 @@ jobs:
           python-version: '3.x'
 
       - name: Generate coverage badges
+        id: coverage-check
         continue-on-error: true
         run: |
           python .github/generate_badge.py \
@@ -116,3 +117,7 @@ jobs:
           git push origin ${GITHUB_REF}  # Push to the current branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if coverage failed
+        if: steps.coverage-check.outcome == 'failure'
+        run: exit 1
