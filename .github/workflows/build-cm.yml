@@ -80,3 +80,25 @@ jobs:
       - name: Publish Test Report
         if: ${{ always() }}
         uses: engr-csc326-itrust/action-surefire-report@v1.02
+
+      - name: Generate coverage report
+        run: |
+          cd wolf-cafe-backend
+          mvn jacoco:report
+      
+      - name: Generate coverage badges
+        run: |
+          python .github/generate_badge.py \
+            "wolf-cafe-backend/target/site/jacoco/jacoco.csv" \
+            ".github/badges" \
+            "jacoco.svg" \
+            "branches.svg" \
+            "true" \
+            "true" \
+            "badges" \
+            "0.7" \
+            "0.5" \
+            "false" \
+            "false" \
+            "0.7,0.9" \
+            "red,yellow,green"
