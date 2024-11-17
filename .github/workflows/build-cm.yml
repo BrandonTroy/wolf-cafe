@@ -86,6 +86,11 @@ jobs:
           cd wolf-cafe-backend
           mvn jacoco:report
       
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
       - name: Generate coverage badges
         run: |
           python .github/generate_badge.py \
