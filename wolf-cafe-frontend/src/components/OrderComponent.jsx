@@ -11,7 +11,7 @@ const OrderComponent = () => {
   const [items, setItems] = useState([])
   const { order, setOrder } = useContext(OrderContext)
   const [subTotal, setSubtotal] = useState(0)
-  const [tax, setTax] = useState(0.02)
+  const [tax, setTax] = useState(0)
   const [tip, setTip] = useState(0.15)
   const [isCustomTip, setIsCustomTip] = useState(false)
   const [message, setMessage] = useState({type: "none", content:""})
@@ -23,10 +23,10 @@ const OrderComponent = () => {
       console.error(error)
     })
 	
-	getTax().then((response) => {
+	  getTax().then((response) => {
       setTax(response.data)
     }).catch(error => {
-     console.error(error)
+      console.error(error)
 	})
   }, [])
 

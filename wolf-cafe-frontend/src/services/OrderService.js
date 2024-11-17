@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "./authorizedAxios"
 
 /** Base URL for the Order API - Correspond to methods in Backend's OrderController. */
 const REST_API_BASE_URL = "http://localhost:8080/api/orders"
