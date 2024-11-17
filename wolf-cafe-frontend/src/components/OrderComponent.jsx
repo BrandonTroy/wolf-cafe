@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { getAllItems } from '../services/ItemService'
 import { order } from '../services/OrderService'
+import { getTax } from '../services/TaxService'
 import { OrderContext } from '../OrderContext'
 import PriceInput from './PriceInput'
 import NotificationPopup from './NotificationPopup'
@@ -10,7 +11,7 @@ const OrderComponent = () => {
   const [items, setItems] = useState([])
   const { order, setOrder } = useContext(OrderContext)
   const [subTotal, setSubtotal] = useState(0)
-  const [tax, setTax] = useState(0.02)
+  const [tax, setTax] = useState(0)
   const [tip, setTip] = useState(0.15)
   const [isCustomTip, setIsCustomTip] = useState(false)
   const [message, setMessage] = useState({type: "none", content:""})
@@ -22,7 +23,9 @@ const OrderComponent = () => {
       console.error(error)
     })
 
-    // TODO: fetch tax rate from backend
+    getTax().then((response) => {
+      setTax(response.data)
+    })
   }, [])
 
   useEffect(() => {
