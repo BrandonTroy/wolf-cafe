@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { getAllItems } from '../services/ItemService'
-import { order } from '../services/OrderService'
-import { getTax } from '../services/TaxService'
+import { placeOrder } from '../services/OrderService'
 import { OrderContext } from '../OrderContext'
+import { getTax } from '../services/TaxService'
 import PriceInput from './PriceInput'
 import NotificationPopup from './NotificationPopup'
 
@@ -22,10 +22,12 @@ const OrderComponent = () => {
     }).catch(error => {
       console.error(error)
     })
-
-    getTax().then((response) => {
+	
+	  getTax().then((response) => {
       setTax(response.data)
-    })
+    }).catch(error => {
+      console.error(error)
+	})
   }, [])
 
   useEffect(() => {
@@ -36,8 +38,30 @@ const OrderComponent = () => {
     }, 0))
   }, [items, order])
 
-  function makeOrder(id, amtPaid) {
-    console.log("Placing Order - TODO")
+  /** From Google AI overview for the search "checking for empty object javascript" */
+  function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+  }
+  
+  function makeOrder(amtTipped) {
+	console.log(order.toString())
+	if (isEmpty(order)) {
+	  setMessage({type: "error", content: "Go to the items page to add items to your order."})
+	  return
+	}
+	
+    const orderDto = {itemList: order, tip: amtTipped}
+	placeOrder(orderDto).then((response) => {
+	  setOrder({})
+	  setMessage({type: "success", content: "Your order is being prepared (#" + response.data.id + "). Thank you!\nGo to the Order History tab to see when your order is ready and mark it as picked up."})
+	}).catch(error => {
+	  if (error.status === 409) {
+		setMessage({type: "error", content: items[error.response.data.id].name + " is currently sold out, or the quantity available is less than the quantity you specified in your order. We apologize for the inconvenience."})
+	  } else {
+		setMessage({type: "error", content: "Could not place an order. Check your network connection."})
+	  }
+	  console.error(error)
+	})
   }
 
   function removeItemFromOrder(id) {
@@ -137,7 +161,7 @@ const OrderComponent = () => {
         <button
           type="button"
           className="btn btn-primary mt-4"
-          onClick={() => makeOrder(order, subTotal * (1 + tax + (tip || 0)))}
+          onClick={() => setMessage({ type: 'none', content: '' }) || makeOrder(subTotal * tip)}
         >
           Place Order
         </button>
