@@ -94,7 +94,7 @@ jobs:
       - name: Generate coverage badges
         run: |
           python .github/generate_badge.py \
-            "wolf-cafe-backend/target/site/jacoco/jacoco.csv" \
+            "wolf-cafe-backend/target/site/jacoco-ut/jacoco.csv" \
             ".github/badges" \
             "jacoco.svg" \
             "branches.svg" \
