@@ -87,6 +87,7 @@ jobs:
           python-version: '3.x'
 
       - name: Generate coverage badges
+        continue-on-error: true
         run: |
           python .github/generate_badge.py \
             "wolf-cafe-backend/target/site/jacoco-ut/jacoco.csv" \
