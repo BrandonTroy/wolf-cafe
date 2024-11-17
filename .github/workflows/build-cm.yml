@@ -95,13 +95,14 @@ jobs:
             "branches.svg" \
             "true" \
             "true" \
-            "badges" \
+            "fail" \
             "0.7" \
             "0.5" \
             "false" \
             "false" \
-            "0.7,0.9" \
-            "red,yellow,green"
+            "80,70" \
+            "60,50" \
+            "green,#CC8B1A,red"
 
       - name: Commit and push the badge files
         if: github.event_name == 'push'
