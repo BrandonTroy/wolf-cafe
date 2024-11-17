@@ -14,4 +14,8 @@ axios.interceptors.request.use(function (config) {
 
 export const getTax = () => axios.get(BASE_REST_API_URL)
 
-export const updateTax = (tax) => axios.put(BASE_REST_API_URL, tax)
+export const updateTax = (tax) => axios.put(BASE_REST_API_URL, tax, {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})

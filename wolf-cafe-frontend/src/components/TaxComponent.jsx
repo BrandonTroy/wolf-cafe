@@ -5,32 +5,28 @@ import NotificationPopup from './NotificationPopup'
 import PriceInput from './PriceInput'
 
 const TaxComponent = () => {
-
   const [tax, setTax] = useState(0.0)
-  const [message, setMessage] = useState({type: "none", content:""})
+  const [message, setMessage] = useState({ type: "none", content:"" })
 
   useEffect(() => {
     getTax().then((response) => {
-      console.log(response.data)
       setTax(response.data)
     }).catch(error => {
       console.error(error)
     })
-  }, []) //Empty array to make the effect run only once on page load (https://stackoverflow.com/questions/53120972/how-to-call-loading-function-with-react-useeffect-only-once)
+  }, [])
 
   function saveNewTax(e) {
     e.preventDefault()
-	if (tax > 50) {
-	  setMessage({type:"error", content: "The largest allowed tax rate is 50%."});
+    if (tax > 50) {
+      setMessage({ type:"error", content: "The largest allowed tax rate is 50%." });
       return
-	}
-    console.log("Setting tax to " + tax.toString() + "%")
+    }
 
     updateTax(tax).then((response) => {
-      setMessage({type:"success", content: "Global sales tax rate set to " + tax.toString() + "%."})
-      console.log(response.data)
+      setMessage({ type:"success", content: "Global sales tax rate set to " + tax.toString() + "%." })
     }).catch(error => {
-      setMessage({type:"error", content: "Could not update tax. Check your connection."});
+      setMessage({ type:"error", content: "Could not update tax. Check your connection." });
       console.error(error)
     })
   }
@@ -38,7 +34,7 @@ const TaxComponent = () => {
   return (
     <div className='container'>
       <br />
-	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+      {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
       <br />
       <div className='row'>
         <div className='card col-md-6 offset-md-3 offset-md-3'>
@@ -54,7 +50,7 @@ const TaxComponent = () => {
                   onChange={value => setTax(value)}
                   placeholder='Enter tax rate'
                   required
-				  dontLimitDecimalPlaces
+                  dontLimitDecimalPlaces
                 />
               </div>
 
