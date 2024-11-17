@@ -56,9 +56,9 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.springframework.security</groupId>
-		    <artifactId>spring-security-test</artifactId>
-		    <scope>test</scope>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
@@ -86,16 +86,16 @@
 	<build>
 		<plugins>
 			<plugin>
-	        	<groupId>org.apache.maven.plugins</groupId>
-	        	<artifactId>maven-checkstyle-plugin</artifactId>
-	        	<version>3.5.0</version>
-	        	<configuration>
-	          		<failsOnError>false</failsOnError>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.5.0</version>
+				<configuration>
+			  		<failsOnError>false</failsOnError>
 					<configLocation>../.github/checkstyle.xml</configLocation>
 					<excludes>**/ui/**</excludes>
-	        	</configuration>
-	      	</plugin>
-	      	<plugin>
+				</configuration>
+		  	</plugin>
+		  	<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
@@ -134,7 +134,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<skip>true</skip>
+					<skip>false</skip>
 				</configuration>
 				<executions>
 					<execution>
@@ -145,8 +145,6 @@
 						</goals>
 						<configuration>
 							<argLine>${surefireArgLine}</argLine>
-							<argLine>-XX:+EnableDynamicAgentLoading</argLine>
-							<skip>false</skip>
 							<includes>
 								<include>**/*Test*.java</include>
 							</includes>
@@ -187,7 +185,18 @@
 							<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
 							<!-- Sets the output directory for the code coverage report. -->
 							<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                            <output>csv</output>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-csv-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco-csv</outputDirectory>
+							<format>csv</format>
 						</configuration>
 					</execution>
 				</executions>
