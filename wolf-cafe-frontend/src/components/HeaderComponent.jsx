@@ -42,6 +42,11 @@ const HeaderComponent = () => {
                     <NavLink to='/order' className='nav-link'>Order</NavLink>
                   </li>
                 }
+				{(!isAdminUser()) &&
+                  <li className='nav-item'>
+                    <NavLink to='/orders' className='nav-link'>Order History</NavLink>
+                  </li>
+                }
                 {
                   isAdminUser() &&
                   <li className='nav-item'>
