@@ -1,5 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.service;
 
+import edu.ncsu.csc326.wolfcafe.dto.OrderDto;
 import edu.ncsu.csc326.wolfcafe.dto.InventoryDto;
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 
@@ -17,5 +18,7 @@ public interface OrderService {
      * @return updated inventory 
      */
 	boolean order(InventoryDto inventoryDto, ItemDto itemDto);
+
+	OrderDto addOrder(OrderDto orderDto);
 
 }
