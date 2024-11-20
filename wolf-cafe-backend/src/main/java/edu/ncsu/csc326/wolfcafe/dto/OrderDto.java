@@ -1,6 +1,5 @@
 package edu.ncsu.csc326.wolfcafe.dto;
 
-import java.util.Date;
 import java.util.Map;
 
 import edu.ncsu.csc326.wolfcafe.entity.Status;
@@ -18,7 +17,7 @@ public class OrderDto {
 	private double tip;
 	private double totalPrice;
 	private Status status;
-	private Date date;
+	private String date;
 	
 	public void setStatus(Status status) {
 		this.status = status;

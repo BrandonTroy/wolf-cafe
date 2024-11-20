@@ -3,7 +3,6 @@ package edu.ncsu.csc326.wolfcafe.service.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,22 +67,22 @@ class OrderServiceTest {
 		Item ham = new Item(2L, "ham", "ham item", 3.25);
 		itemList.put(bread.getId(), 2);
 		itemList.put(ham.getId(), 3);
-	    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	    Date date = new Date();
-	    dateFormat.format(date);
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+        String d = formatter.format(date);
 	    Status status = Status.PLACED;
 
 	    //Make a customer user
 		UserDto ryan = new UserDto(4L, "Ryan", "rthinsha", "rthinsha@ncsu.edu", "password", Role.CUSTOMER);
 		UserDto savedUser = userService.createUser(ryan);
 		UserDto ryanUser = userService.getUserById(savedUser.getId());
-		OrderDto orderDto = new OrderDto(1L, itemList, ryanUser.getId(), 0.9, 12.75, status, date);
+		OrderDto orderDto = new OrderDto(1L, itemList, ryanUser.getId(), 0.9, 12.75, status, d);
 		
 		//Make a second customer user
 		UserDto second = new UserDto(5L, "Second", "suser2", "second@ncsu.edu", "password2", Role.CUSTOMER);
 		UserDto savedUser2 = userService.createUser(second);
 		UserDto secondUser = userService.getUserById(savedUser2.getId());
-		OrderDto orderDto2 = new OrderDto(2L, itemList, secondUser.getId(), 0.9, 12.75, status, date);
+		OrderDto orderDto2 = new OrderDto(2L, itemList, secondUser.getId(), 0.9, 12.75, status, d);
 		
 		//Make a manager
         UserDto managerDto = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
@@ -110,9 +109,9 @@ class OrderServiceTest {
 	public void testEditOrder() throws NoSuchAlgorithmException {
 		//Necessary arguments for making an order
 		Map<Long, Integer> itemList = new HashMap<>();
-	    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	    Date date = new Date();
-	    dateFormat.format(date);
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+        String d = formatter.format(date);
 	    Status status = Status.PLACED;
 	    
 		Item bread = new Item(1L, "bread", "bread item", 1.50);
@@ -146,13 +145,14 @@ class OrderServiceTest {
 	  	UserDto ryan = new UserDto(4L, "Ryan", "rthinsha", "rthinsha@ncsu.edu", "password", Role.CUSTOMER);
 	  	UserDto savedUser = userService.createUser(ryan);
 	 	UserDto ryanUser = userService.getUserById(savedUser.getId());
-	  	OrderDto orderDto = new OrderDto(1L, itemList, ryanUser.getId(), 0.9, 12.75, status, date);
+	  	OrderDto orderDto = new OrderDto(1L, itemList, ryanUser.getId(), 0.9, 12.75, status, d);
 	  	
 	  	//Make a barista
         UserDto baristaDto = new UserDto(1, "Karthik Nandakumar", "knandak", "knandak@ncsu.edu", "cqhavhhv",
 				Role.BARISTA);
-		UserDto savedBarista = userService.createUser(baristaDto);
-		UserDto retrievedBarista = userService.getUserById(savedBarista.getId());
+        userService.createUser(baristaDto);
+//		UserDto savedBarista = userService.createUser(baristaDto);
+//		UserDto retrievedBarista = userService.getUserById(savedBarista.getId());
 		
 		OrderDto updatedDto = orderService.editOrder(orderDto, Status.FULFILLED);
 		assertEquals(Status.FULFILLED, updatedDto.getStatus());

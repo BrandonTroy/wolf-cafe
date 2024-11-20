@@ -1,6 +1,5 @@
 package edu.ncsu.csc326.wolfcafe.entity;
 
-import java.util.Date;
 import java.util.Map;
 
 import jakarta.persistence.CollectionTable;
@@ -49,7 +48,7 @@ public class Order {
 	private Status status;
 	
 	@Column ( nullable = false )
-	private Date date;
+	private String date;
 
 //	private InventoryRepository inventoryRepository;
 	
