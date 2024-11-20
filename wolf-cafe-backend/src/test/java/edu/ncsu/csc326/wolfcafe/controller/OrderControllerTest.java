@@ -1,5 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,12 +22,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.ncsu.csc326.wolfcafe.TestUtils;
+import edu.ncsu.csc326.wolfcafe.dto.InventoryDto;
+import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 import edu.ncsu.csc326.wolfcafe.dto.OrderDto;
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
-import edu.ncsu.csc326.wolfcafe.entity.Item;
 import edu.ncsu.csc326.wolfcafe.entity.Role;
-import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
+import edu.ncsu.csc326.wolfcafe.service.InventoryService;
+import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import edu.ncsu.csc326.wolfcafe.service.TaxService;
 import edu.ncsu.csc326.wolfcafe.service.UserService;
 
@@ -36,23 +39,27 @@ class OrderControllerTest {
 
     /** Mock MVC for testing controller */
     @Autowired
-    private MockMvc        mvc;
+    private MockMvc          mvc;
 
     /** user service for creating a user to place an order */
     @Autowired
-    private UserService    userService;
+    private UserService      userService;
 
     /** user repository for deleting all at start of test */
     @Autowired
-    private UserRepository userRepository;
-
-    /** item repository for saving items used in test orders */
-    @Autowired
-    private ItemRepository itemRepository;
+    private UserRepository   userRepository;
 
     /** tax service for setting tax rate for tests */
     @Autowired
-    private TaxService     taxService;
+    private TaxService       taxService;
+
+    /** inventory service for ensuring there are enough ingredients */
+    @Autowired
+    private InventoryService inventoryService;
+
+    /** item service for adding items */
+    @Autowired
+    private ItemService      itemService;
 
     // /**
     // * Api endpoint under test
@@ -65,19 +72,23 @@ class OrderControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser ( username = "Ryan", roles = "CUSTOMER" )
+    @WithMockUser ( username = "rthinsha", roles = "CUSTOMER" )
     public void testAddAndPickupOrder () throws Exception {
         userRepository.deleteAll();
         taxService.setTaxRate( 2.0 );
 
-        final Item bread = new Item( 1L, "bread", "bread item", 1.50 );
-        final Item ham = new Item( 2L, "ham", "ham item", 3.25 );
-        final Item cheese = new Item( 3L, "cheese", "cheese item", 1.25 );
-        final Item tomato = new Item( 4L, "tomato", "tomato item", 2.40 );
-        final Item savedBread = itemRepository.save( bread );
-        final Item savedHam = itemRepository.save( ham );
-        final Item savedCheese = itemRepository.save( cheese );
-        final Item savedTomato = itemRepository.save( tomato );
+        final ItemDto bread = new ItemDto( 1L, "bread", "bread item", 1.50 );
+        final ItemDto ham = new ItemDto( 2L, "ham", "ham item", 3.25 );
+        final ItemDto savedBread = itemService.addItem( bread );
+        final ItemDto savedHam = itemService.addItem( ham );
+
+        final InventoryDto inventoryDto = new InventoryDto();
+        final Map<Long, Integer> items = new HashMap<>();
+        items.put( savedBread.getId(), 20 );
+        items.put( savedHam.getId(), 20 );
+        inventoryDto.setItemQuantities( items );
+        assertEquals( 2, inventoryDto.getItemQuantities().size() );
+        inventoryService.addInventory( inventoryDto );
 
         final UserDto ryan = new UserDto( 4L, "Ryan", "rthinsha", "rthinsha@ncsu.edu", "password", Role.CUSTOMER );
         final UserDto savedUser = userService.createUser( ryan );

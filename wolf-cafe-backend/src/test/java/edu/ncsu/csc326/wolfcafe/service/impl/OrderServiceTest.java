@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +23,7 @@ import edu.ncsu.csc326.wolfcafe.entity.Item;
 import edu.ncsu.csc326.wolfcafe.entity.Role;
 import edu.ncsu.csc326.wolfcafe.entity.Status;
 import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
+import edu.ncsu.csc326.wolfcafe.repository.OrderRepository;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.service.InventoryService;
 import edu.ncsu.csc326.wolfcafe.service.ItemService;
@@ -37,42 +37,42 @@ class OrderServiceTest {
 
     /** order repository */
     @Autowired
-    private OrderService      orderService;
+    private OrderService     orderService;
 
     /** user service */
     @Autowired
-    private UserService       userService;
+    private UserService      userService;
 
     /** user repository */
     @Autowired
-    private UserRepository    userRepository;
+    private UserRepository   userRepository;
 
     /** item repository */
     @Autowired
-    private ItemRepository    itemRepository;
+    private ItemRepository   itemRepository;
+
+    /** order repository */
+    @Autowired
+    private OrderRepository  orderRepository;
 
     /** item service */
     @Autowired
-    private ItemService       itemService;
+    private ItemService      itemService;
 
     /** inventory service */
     @Autowired
-    private InventoryService  inventoryService;
+    private InventoryService inventoryService;
 
     /** tax service */
     @Autowired
-    private TaxService        taxService;
-
-    /**
-     * Performs object mapping from entities to dtos
-     */
-    private final ModelMapper modelMapper = new ModelMapper();
+    private TaxService       taxService;
 
     /** Deletes repositories before each test */
     @BeforeEach
     public void setUp () throws Exception {
         userRepository.deleteAll();
         itemRepository.deleteAll();
+        orderRepository.deleteAll();
         taxService.setTaxRate( 2.0 );
     }
 
@@ -81,12 +81,21 @@ class OrderServiceTest {
     public void testOrderHistory () {
         // Necessary arguments for making an order
         final Map<Long, Integer> itemList = new HashMap<>();
-        final Item bread = new Item( 1L, "bread", "bread item", 1.50 );
-        final Item ham = new Item( 2L, "ham", "ham item", 3.25 );
-        itemService.addItem( modelMapper.map( bread, ItemDto.class ) );
-        itemService.addItem( modelMapper.map( ham, ItemDto.class ) );
-        itemList.put( bread.getId(), 2 );
-        itemList.put( ham.getId(), 3 );
+        final ItemDto bread = new ItemDto( 1L, "bread", "bread item", 1.50 );
+        final ItemDto ham = new ItemDto( 2L, "ham", "ham item", 3.25 );
+        final ItemDto savedBread = itemService.addItem( bread );
+        final ItemDto savedHam = itemService.addItem( ham );
+        itemList.put( savedBread.getId(), 2 );
+        itemList.put( savedHam.getId(), 3 );
+
+        final InventoryDto inventoryDto = new InventoryDto();
+        final Map<Long, Integer> items = new HashMap<>();
+        items.put( savedBread.getId(), 20 );
+        items.put( savedHam.getId(), 20 );
+        inventoryDto.setItemQuantities( items );
+        assertEquals( 2, inventoryDto.getItemQuantities().size() );
+        inventoryService.addInventory( inventoryDto );
+
         final Date date = new Date();
         final SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
         final String d = formatter.format( date );
