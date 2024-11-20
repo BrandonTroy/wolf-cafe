@@ -10,12 +10,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.ncsu.csc326.wolfcafe.dto.InventoryDto;
+import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 import edu.ncsu.csc326.wolfcafe.dto.OrderDto;
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
 import edu.ncsu.csc326.wolfcafe.entity.Item;
@@ -24,6 +26,7 @@ import edu.ncsu.csc326.wolfcafe.entity.Status;
 import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.service.InventoryService;
+import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import edu.ncsu.csc326.wolfcafe.service.OrderService;
 import edu.ncsu.csc326.wolfcafe.service.TaxService;
 import edu.ncsu.csc326.wolfcafe.service.UserService;
@@ -34,32 +37,42 @@ class OrderServiceTest {
 
     /** order repository */
     @Autowired
-    private OrderService     orderService;
+    private OrderService      orderService;
 
     /** user service */
     @Autowired
-    private UserService      userService;
+    private UserService       userService;
 
     /** user repository */
     @Autowired
-    private UserRepository   userRepository;
+    private UserRepository    userRepository;
 
     /** item repository */
     @Autowired
-    private ItemRepository   itemRepository;
+    private ItemRepository    itemRepository;
+
+    /** item service */
+    @Autowired
+    private ItemService       itemService;
 
     /** inventory service */
     @Autowired
-    private InventoryService inventoryService;
+    private InventoryService  inventoryService;
 
     /** tax service */
     @Autowired
-    private TaxService       taxService;
+    private TaxService        taxService;
+
+    /**
+     * Performs object mapping from entities to dtos
+     */
+    private final ModelMapper modelMapper = new ModelMapper();
 
     /** Deletes repositories before each test */
     @BeforeEach
     public void setUp () throws Exception {
         userRepository.deleteAll();
+        itemRepository.deleteAll();
         taxService.setTaxRate( 2.0 );
     }
 
@@ -70,6 +83,8 @@ class OrderServiceTest {
         final Map<Long, Integer> itemList = new HashMap<>();
         final Item bread = new Item( 1L, "bread", "bread item", 1.50 );
         final Item ham = new Item( 2L, "ham", "ham item", 3.25 );
+        itemService.addItem( modelMapper.map( bread, ItemDto.class ) );
+        itemService.addItem( modelMapper.map( ham, ItemDto.class ) );
         itemList.put( bread.getId(), 2 );
         itemList.put( ham.getId(), 3 );
         final Date date = new Date();

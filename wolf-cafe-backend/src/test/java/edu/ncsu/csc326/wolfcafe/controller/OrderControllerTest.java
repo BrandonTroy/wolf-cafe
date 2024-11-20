@@ -26,6 +26,7 @@ import edu.ncsu.csc326.wolfcafe.dto.UserDto;
 import edu.ncsu.csc326.wolfcafe.entity.Item;
 import edu.ncsu.csc326.wolfcafe.entity.Role;
 import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
+import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 import edu.ncsu.csc326.wolfcafe.service.TaxService;
 import edu.ncsu.csc326.wolfcafe.service.UserService;
 
@@ -40,6 +41,10 @@ class OrderControllerTest {
     /** user service for creating a user to place an order */
     @Autowired
     private UserService    userService;
+
+    /** user repository for deleting all at start of test */
+    @Autowired
+    private UserRepository userRepository;
 
     /** item repository for saving items used in test orders */
     @Autowired
@@ -62,6 +67,7 @@ class OrderControllerTest {
     @Transactional
     @WithMockUser ( username = "Ryan", roles = "CUSTOMER" )
     public void testAddAndPickupOrder () throws Exception {
+        userRepository.deleteAll();
         taxService.setTaxRate( 2.0 );
 
         final Item bread = new Item( 1L, "bread", "bread item", 1.50 );

@@ -78,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
         if ( userDto.getRole() == Role.CUSTOMER || userDto.getRole() == Role.GUEST ) {
             final Map<Long, OrderDto> orders = new HashMap<>();
             for ( final Entry<Long, OrderDto> orderDto : orderHistory.entrySet() ) {
-                if ( orderDto.getValue().getCustomerId() == id ) {
+                if ( orderDto.getValue().getCustomerId().equals( id ) ) {
                     orders.put( orderDto.getKey(), orderDto.getValue() );
                 }
             }
