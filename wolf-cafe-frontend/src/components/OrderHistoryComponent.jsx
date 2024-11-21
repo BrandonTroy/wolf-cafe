@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser, getLoggedInUser } from '../services/AuthService'
 import { getItemById } from '../services/ItemService'
 import { getUser } from '../services/UserService'
 import { getAllOrders, updateOrder } from '../services/OrderService'
 import NotificationPopup from './NotificationPopup'
+import { OrderContext } from '../OrderContext'
 
 const OrderHistoryComponent = () => {
   const [orders, setOrders] = useState([])
   const [message, setMessage] = useState({type: "none", content:""})
   const [items, setItems] = useState({})
+  const { order, setOrder } = useContext(OrderContext)
 
   useEffect(() => {
     listOrders()
@@ -52,11 +54,11 @@ const OrderHistoryComponent = () => {
     }
   }
 
-  function fulfillOrder(id) {
-    const status = {status: "FULFILLED"}
-    updateOrder(id, status).then(() => {
+  function fulfillOrder(order) {
+    order.status = "FULFILLED"
+    updateOrder(order.id, order).then(() => {
       listOrders()
-      setMessage({type: "success", content: "Order fulfilled (#" + response.data.id + ")."})
+      setMessage({type: "success", content: "Order fulfilled (#" + order.id + ")."})
     }).catch(error => {
       if (error.status === 409) {
         setMessage({type: "error", content: "The order you selected has already been fulfilled."})
@@ -69,11 +71,11 @@ const OrderHistoryComponent = () => {
     })
   }
 	
-  function pickupOrder(id) {
-    const status = {status: "PICKEDUP"}
-    updateOrder(id, status).then(() => {
+  function pickupOrder(order) {
+    order.status = "PICKEDUP"
+    updateOrder(order.id, order).then(() => {
       listOrders()
-      setMessage({type: "success", content: "Your order has been picked up (#" + response.data.id + "). Thank you!"})
+      setMessage({type: "success", content: "Your order has been picked up (#" + order.id + "). Thank you!"})
     }).catch(error => {
       if (error.status === 409) {
         setMessage({type: "error", content: "The order you selected has already been picked up."})
@@ -86,11 +88,11 @@ const OrderHistoryComponent = () => {
     })
   }
 	
-  function cancelOrder(id) {
-    const status = {status: "CANCELED"}
-    updateOrder(id, status).then(() => {
+  function cancelOrder(order) {
+    order.status = "CANCELED"
+    updateOrder(order.id, order).then(() => {
       listOrders()
-      setMessage({type: "success", content: "Your order has been canceled (#" + response.data.id + ")."})
+      setMessage({type: "success", content: "Your order has been canceled (#" + order.id + ")."})
     }).catch(error => {
       if (error.status === 409) {
         setMessage({type: "error", content: "The order you selected has already been canceled."})
@@ -101,6 +103,11 @@ const OrderHistoryComponent = () => {
       }
       console.error(error)
     })
+  }
+
+  function placeAgain(order) {
+    setOrder(order.itemList)
+    setMessage({type: "success", content: "Order placed again with the same items and quantities."})
   }
 	
   function displayItems(itemList) {
@@ -151,24 +158,24 @@ const OrderHistoryComponent = () => {
                     {/* Manager and Barista Actions */}
                     {
                       (isManagerUser() || isBaristaUser()) && order.status === "PLACED" &&
-                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || fulfillOrder(order.id)}>Fulfill</button>
+                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || fulfillOrder(order)}>Fulfill</button>
                     }
                     {
-                      (isManagerUser() || isBaristaUser()) && order.status != "PLACED" &&
+                      (isManagerUser() || isBaristaUser()) && order.status !== "CANCELED" &&
                       <button className='btn btn-info' disabled>Fulfilled</button>
                     }
                     {/* Customer and Guest Actions */}
                     {
                       (isCustomerUser() || isGuestUser()) && order.status === "FULFILLED" &&
-                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || pickupOrder(order.id)}>Pick Up</button>
+                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || pickupOrder(order)}>Pick Up</button>
                     }
                     {
                       (isCustomerUser() || isGuestUser()) && order.status === "PLACED" &&
-                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || cancelOrder(order.id)}>Cancel</button>
+                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || cancelOrder(order)}>Cancel</button>
                     }
                     {
                       (isCustomerUser() || isGuestUser()) && order.status === "PICKEDUP" &&
-                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' })}>Place Again</button>
+                      <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || placeAgain(order)}>Place Again</button>
                     }
                   </td>
                 </tr>
