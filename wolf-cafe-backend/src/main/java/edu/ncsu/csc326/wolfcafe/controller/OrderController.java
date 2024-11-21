@@ -142,9 +142,14 @@ public class OrderController {
     public ResponseEntity<OrderDto> updateOrder ( @AuthenticationPrincipal final UserDetails requester,
             @PathVariable ( "id" ) final Long id, @RequestBody final OrderDto orderDto ) {
 
-        final Role role = userService.getUserByUsername( requester.getUsername() ).getRole();
-
-        if ( role == Role.BARISTA || role == Role.MANAGER ) {
+        final Role role = userService.getUserByUsername(requester.getUsername()).getRole();
+        
+        // TODO: this logic is kind of unnecessary now since the status is set in the dto
+        if ( orderDto.getStatus() == Status.CANCELED ) {
+            final OrderDto updatedOrderDto = orderService.editOrder( orderDto, Status.CANCELED );
+            return ResponseEntity.ok( updatedOrderDto );
+        }
+        else if ( role == Role.BARISTA || role == Role.MANAGER ) {
             final OrderDto updatedOrderDto = orderService.editOrder( orderDto, Status.FULFILLED );
             return ResponseEntity.ok( updatedOrderDto );
         }
