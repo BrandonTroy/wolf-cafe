@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
 import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
@@ -56,6 +57,7 @@ public class ItemServiceImplTest {
      * Tests for adding an item
      */
     @Test
+    @Transactional
     @WithMockUser ( username = "manager", roles = "MANAGER" )
     void testAddItem () {
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
@@ -72,6 +74,7 @@ public class ItemServiceImplTest {
      * Tests for retrieving an item
      */
     @Test
+    @Transactional
     @WithMockUser ( username = "manager", roles = "MANAGER" )
     void testGetItem () {
         final ItemDto itemDto1 = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
@@ -96,6 +99,7 @@ public class ItemServiceImplTest {
      * Tests for retrieving a list of all the items
      */
     @Test
+    @Transactional
     @WithMockUser ( username = "manager", roles = "MANAGER" )
     void testGetAllItems () {
         final ItemDto itemDto1 = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );
@@ -131,6 +135,7 @@ public class ItemServiceImplTest {
      * Tests for updating an item.
      */
     @Test
+    @Transactional
     @WithMockUser ( username = "manager", roles = "MANAGER" )
     void testUpdateItem () {
         final ItemDto itemDto = new ItemDto( 0L, ITEM_NAME, ITEM_DESCRIPTION, ITEM_PRICE );

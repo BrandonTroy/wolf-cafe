@@ -1,6 +1,5 @@
 package edu.ncsu.csc326.wolfcafe.service;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -19,10 +18,8 @@ public interface UserService {
      * @param userDto
      *            user to add
      * @return added user
-     * @throws NoSuchAlgorithmException
-     *             if hashing algorithm for password can't be found
      */
-    UserDto createUser ( UserDto userDto ) throws NoSuchAlgorithmException;
+    UserDto createUser ( UserDto userDto );
 
     /**
      * Gets user by id

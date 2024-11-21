@@ -99,7 +99,7 @@ public class ItemControllerTest {
         final String json = MAPPER.writeValueAsString( itemDto );
 
         mvc.perform( post( API_PATH ).contentType( MediaType.APPLICATION_JSON ).characterEncoding( ENCODING )
-                .content( json ).accept( MediaType.APPLICATION_JSON ) ).andExpect( status().isCreated() )
+                .content( json ).accept( MediaType.APPLICATION_JSON ) ).andDo( print() ).andExpect( status().isCreated() )
                 .andExpect( jsonPath( "$.name", Matchers.equalTo( ITEM_NAME ) ) )
                 .andExpect( jsonPath( "$.description", Matchers.equalTo( ITEM_DESCRIPTION ) ) )
                 .andExpect( jsonPath( "$.price", Matchers.equalTo( ITEM_PRICE ) ) );
