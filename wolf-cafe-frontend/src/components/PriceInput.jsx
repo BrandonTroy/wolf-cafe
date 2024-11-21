@@ -7,7 +7,8 @@ const PriceInput = ({
   style = {},
   min = 0,
   placeholder = "0.00",
-  required = false
+  required = false,
+  dontLimitDecimalPlaces = false
 }) => {
   const [displayValue, setDisplayValue] = useState('');
 
@@ -30,7 +31,7 @@ const PriceInput = ({
     }
 
     // Limit to 2 decimal places
-    if (parts.length === 2 && parts[1].length > 2) {
+    if (!dontLimitDecimalPlaces && parts.length === 2 && parts[1].length > 2) {
       cleaned = `${parts[0]}.${parts[1].slice(0, 2)}`;
     }
 
@@ -57,7 +58,7 @@ const PriceInput = ({
       formattedValue = min.toFixed(2);
     } else {
       const numericValue = parseFloat(displayValue);
-      formattedValue = numericValue.toFixed(2);
+      formattedValue = dontLimitDecimalPlaces ? numericValue : numericValue.toFixed(2);
     }
     setDisplayValue(formattedValue);
     onChange(parseFloat(formattedValue));
@@ -68,7 +69,7 @@ const PriceInput = ({
       type="number"
       inputMode="decimal"
       min={min}
-      step="0.01"
+      step={dontLimitDecimalPlaces ? "any" : "0.01"}
       className="form-control"
       style={style}
       value={displayValue}

@@ -1,6 +1,5 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,9 +18,6 @@ import edu.ncsu.csc326.wolfcafe.service.UserService;
 /**
  * User service implementation
  *
- * Referenced https://www.javatpoint.com/how-to-encrypt-password-in-java for
- * SHA-256 encryption for passwords
- *
  * @author Karthik Nandakumar
  */
 @Service
@@ -31,13 +27,16 @@ public class UserServiceImpl implements UserService {
      * Connection to the users table in the database
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository  userRepository;
 
+    /**
+     * A Spring tool used to hash passwords
+     */
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDto createUser ( final UserDto userDto ) throws NoSuchAlgorithmException {
+    public UserDto createUser ( final UserDto userDto ) {
         if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
             throw new IllegalArgumentException( "Duplicate username" );
         }
