@@ -118,9 +118,9 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<Map<Long, OrderDto>> getOrders ( @AuthenticationPrincipal final UserDetails requester ) {
 
-        final Long id = userService.getUserByUsername( requester.getUsername() ).getId();
+        final String username = userService.getUserByUsername( requester.getUsername() ).getUsername();
 
-        final Map<Long, OrderDto> orders = orderService.getOrderHistory( id );
+        final Map<Long, OrderDto> orders = orderService.getOrderHistory( username );
         return ResponseEntity.ok( orders );
     }
 
