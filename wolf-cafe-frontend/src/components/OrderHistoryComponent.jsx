@@ -16,7 +16,7 @@ const OrderHistoryComponent = () => {
 	function listOrders() {
 	  if ( isBaristaUser || isManagerUser ) {
 	    getAllOrders().then((response) => {
-		  tempOrders = response.data
+		  let tempOrders = response.data
 		  for (let i = 0; i < tempOrders.length; i++) {
 		    getUser(tempOrders[i].customerId).then((response) => {
 			  //Replace customerId with username of the user with that id
