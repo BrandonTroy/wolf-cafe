@@ -88,18 +88,8 @@ public class AuthServiceImpl implements AuthService {
     public JwtAuthResponse login ( final LoginDto loginDto ) {
         // Guest Login
         if ( loginDto.getUsernameOrEmail().equals( "guest-user" ) && loginDto.getPassword().equals( "guest" ) ) {
-            User guestUser = userRepository.findByUsername( "guest-user" ).orElse( null );
-            if ( guestUser == null ) {
-                guestUser = new User();
-                guestUser.setName( "Guest User" );
-                guestUser.setEmail( "guest@guest.edu" );
-                guestUser.setUsername( "guest-user" );
-                guestUser.setPassword( loginDto.getPassword() );
-                guestUser.setRole( Role.GUEST );
-                userRepository.save( guestUser );
-            }
-
-            JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+            final User guestUser = createGuestUser();
+            final JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
             jwtAuthResponse.setRole( "ROLE_GUEST" );
             jwtAuthResponse.setAccessToken( jwtTokenProvider.generateTokenGuest( guestUser ) );
             return jwtAuthResponse;
@@ -127,6 +117,32 @@ public class AuthServiceImpl implements AuthService {
 
         return jwtAuthResponse;
 
+    }
+
+    /**
+     * Helper method to create a new Guest user, saving it to the database
+     *
+     * @return new Guest user
+     */
+    private User createGuestUser () {
+        // Get the current user count from the repository
+        final long userCount = userRepository.count(); // Get the count of users
+
+        // Generate a new guest username based on the count
+        final String guestUsername = "guest-" + ( userCount + 1 ); // Create a
+                                                                   // unique
+                                                                   // username
+
+        // Create a new user entity for the guest
+        final User newUser = new User();
+        newUser.setName( "---GUEST---" );
+        newUser.setUsername( guestUsername );
+        newUser.setEmail( guestUsername + "@fake.com" );
+        newUser.setPassword( "guest" );
+        newUser.setRole( Role.GUEST ); // Set the role as guest
+
+        // Save the new guest user to the database
+        return userRepository.save( newUser );
     }
 
     /**
