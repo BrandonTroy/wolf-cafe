@@ -1,5 +1,8 @@
 # WolfCafe
 
+![Coverage](.github/badges/jacoco.svg)
+![Branch Coverage](.github/badges/branches.svg)
+
 ## Install Lombok
 Lombok is a library that lets us use annotations to automatically generate getters, setters, and constructors.  For Lombok to work in Eclipse (and other IDEs like IntelliJ or VS Code), you need to set up Lombok with the IDE in addition to including in the pom.xml file.
 
