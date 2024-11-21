@@ -32,7 +32,7 @@ const OrderHistoryComponent = () => {
 	  }
 	  if ( isCustomerUser || isGuestUser ) {
 		getAllOrders().then((response) => {
-		  tempOrders = response.data
+		  let tempOrders = response.data
 		  let userOrders = []
 		  let j = 0
 		  for (let i = 0; i < tempOrders.length; i++) {
@@ -105,23 +105,6 @@ const OrderHistoryComponent = () => {
 	  })
 	}
 	
-	function remakeOrder(id) {
-	  const status = {status: "PLACED"}
-	  updateOrder(id, status).then(() => {
-		listOrders()
-		setMessage({type: "success", content: "Your order has been placed (#" + response.data.id + "). Thank you!"})
-	  }).catch(error => {
-		if (error.status === 409) {
-		  setMessage({type: "error", content: "The order you selected has already been placed."})
-		} else if (error.status === 404) {
-		  setMessage({type: "error", content: "The order you are trying to place could not be found in the system."})
-		} else {
-		  setMessage({type: "error", content: "Could not place order. Check your network connection."})
-		}
-		console.error(error)
-	  })
-	}
-	
 	function displayItems(itemList) {
 	  let itemString = ""
       for (const [key, value] in Object.entries(itemList)) {
@@ -163,7 +146,7 @@ const OrderHistoryComponent = () => {
 					</thead>
 					<tbody>
 						{
-							orders.map((order) =>
+							Object.values(orders).map((order) =>
 								<tr key={order.id}>
 									<td>{order.date}</td>
 									{ (isManagerUser() || isBaristaUser()) &&
@@ -180,9 +163,12 @@ const OrderHistoryComponent = () => {
                                     <td>
 									    {/* Manager and Barista Actions */}
 										{
-											(isManagerUser() || isBaristaUser()) && order.status === "PLACED" ?
+											(isManagerUser() || isBaristaUser()) && order.status === "PLACED" &&
 											<button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' })
-											                                            || fulfillOrder(order.id)}>Fulfill</button> :
+											                                            || fulfillOrder(order.id)}>Fulfill</button>
+										}
+										{
+											(isManagerUser() || isBaristaUser()) && order.status != "PLACED" &&
 											<button className='btn btn-info' disabled>Fulfilled</button>
 										}
 										{/* Customer and Guest Actions */}
@@ -198,8 +184,7 @@ const OrderHistoryComponent = () => {
 										}
 										{
 											(isCustomerUser() || isGuestUser()) && order.status === "PICKEDUP" &&
-											<button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' })
-											                                            || remakeOrder(order.id)}>Place Again</button>
+											<button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' })}>Place Again</button>
 										}
 									</td>
 								</tr>
