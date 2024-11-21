@@ -34,7 +34,7 @@ import lombok.AllArgsConstructor;
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping ( "/api/order" )
+@RequestMapping ( "/api/orders" )
 @CrossOrigin ( "*" )
 public class OrderController {
 
@@ -80,7 +80,7 @@ public class OrderController {
      *            info about the user requesting this call
      * @return OrderDto representing the created order
      */
-    @PreAuthorize ( "hasRole('CUSTOMER')" )
+    @PreAuthorize ( "hasAnyRole('CUSTOMER', 'GUEST')" )
     @PostMapping
     public ResponseEntity<OrderDto> addOrder ( @AuthenticationPrincipal final UserDetails requester,
             @RequestBody final OrderDto orderDto ) {
