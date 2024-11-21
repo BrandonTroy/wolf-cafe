@@ -144,7 +144,7 @@ class OrderControllerTest {
         assertEquals(1, orderRepository.findAll().size());
         
         orderDto.setStatus(Status.FULFILLED);
-        Long orderId = orderRepository.findAll().get(0).getId() + 2;
+        Long orderId = orderRepository.findAll().get(0).getId();
         
         final String update = mvc.perform(put("/api/order/{id}", orderId)
 				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(orderDto))
@@ -254,7 +254,7 @@ class OrderControllerTest {
         // GET for orders should return all the orders available to the user
         // with that specified id
         // GET for this customer should return the newly created order above
-        Long orderId = orderRepository.findAll().get(0).getId() + 1;
+        Long orderId = orderRepository.findAll().get(0).getId();
         
         final String update = mvc.perform(put("/api/order/{id}", orderId)
 				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(orderDto))
