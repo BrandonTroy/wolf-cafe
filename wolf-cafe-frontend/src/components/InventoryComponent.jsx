@@ -95,7 +95,6 @@ const InventoryComponent = () => {
                   onChange={(e) => {
                     const value = e.target.value === '' ? '' : parseInt(e.target.value);
                     setQuantityAdded({ ...quantityAdded, [item.id]: value })
-                    setSuccessMessage('')
                   }}
                 />
               </td>
@@ -104,7 +103,7 @@ const InventoryComponent = () => {
         </tbody>
       </table>
       <br />
-      <button className="btn btn-success" onClick={modifyInventory}>Add Inventory</button>
+      <button className="btn btn-success" onClick={() => setMessage({ type: 'none', content: '' }) || modifyInventory()}>Add Inventory</button>
     </div>
   )
 }

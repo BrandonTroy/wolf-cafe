@@ -1,5 +1,6 @@
 package edu.ncsu.csc326.wolfcafe.controller;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -40,31 +41,13 @@ public class UserController {
      * @param userDto
      *            a user dto
      * @return a UserDto object
+     * @throws NoSuchAlgorithmException
+     *             if password hash fails
      */
     @PreAuthorize ( "hasRole('ADMIN')" )
     @PostMapping
-    public ResponseEntity<UserDto> createUser ( @RequestBody final UserDto userDto ) {
-        if ( userService.isDuplicateUsername( userDto.getUsername() ) ) {
-            System.err.println( "Duplicate username" );
-            return ResponseEntity.status( HttpStatus.CONFLICT ).body( userDto );
-        }
-
-        if ( userDto.getUsername().trim().isEmpty() || userDto.getEmail().trim().isEmpty()
-                || userDto.getPassword().length() < 8 ) {
-            System.err.println( "Invalid input format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
-
-        final boolean isValidUsername = userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" );
-        final boolean isValidEmail = userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" );
-
-        if ( !isValidUsername || !isValidEmail ) {
-            System.err.println( "Invalid format" );
-            return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
-        }
-
-        final UserDto savedUserDto = userService.createUser( userDto );
-        return ResponseEntity.status( HttpStatus.CREATED ).body( savedUserDto );
+    public ResponseEntity<UserDto> createUser ( @RequestBody final UserDto userDto ) throws NoSuchAlgorithmException {
+        return validate( "create", null, userDto );
     }
 
     /**
@@ -75,32 +58,61 @@ public class UserController {
      * @param userDto
      *            the user dto
      * @return an updated user dto
+     * @throws NoSuchAlgorithmException
+     *             should never actually throw this because password is not
+     *             hashed during an update since password is not editable
      */
     @PreAuthorize ( "hasRole('ADMIN')" )
     @PutMapping ( "/{id}" )
     public ResponseEntity<UserDto> updateUser ( @PathVariable ( "id" ) final long id,
-            @RequestBody final UserDto userDto ) {
-        if ( userService.isDuplicateUsername( userDto.getUsername() ) ) {
+            @RequestBody final UserDto userDto ) throws NoSuchAlgorithmException {
+        return validate( "update", id, userDto );
+    }
+
+    /**
+     * Validates the user dto
+     * 
+     * @param action
+     *            the action to take
+     * @param id
+     *            the id of the use dto
+     * @param userDto
+     *            the user dto
+     * @return a ResponseEntity of the user dto
+     * @throws NoSuchAlgorithmException
+     */
+    private ResponseEntity<UserDto> validate ( final String action, final Long id, final UserDto userDto )
+            throws NoSuchAlgorithmException {
+        if ( userService.isDuplicateUsername( id, userDto.getUsername() )
+                || userService.isDuplicateEmail( id, userDto.getEmail() ) ) {
             System.err.println( "Duplicate username" );
             return ResponseEntity.status( HttpStatus.CONFLICT ).body( userDto );
         }
 
-        if ( userDto.getUsername().trim().isEmpty() || userDto.getEmail().trim().isEmpty()
+        if ( userDto.getName().trim().isEmpty() || userDto.getUsername().trim().isEmpty()
+                || userDto.getEmail().trim().isEmpty() || userDto.getPassword().trim().isEmpty()
                 || userDto.getPassword().length() < 8 ) {
             System.err.println( "Invalid input format" );
             return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
         }
 
+        final boolean isValidName = userDto.getName().matches( "^[a-zA-Z.\\s\\-']+$" );
         final boolean isValidUsername = userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" );
         final boolean isValidEmail = userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" );
 
-        if ( !isValidUsername || !isValidEmail ) {
+        if ( !isValidName || !isValidUsername || !isValidEmail ) {
             System.err.println( "Invalid format" );
             return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( userDto );
         }
 
-        final UserDto editedUserDto = userService.updateUser( id, userDto );
-        return ResponseEntity.ok( editedUserDto );
+        if ( "create".equals( action ) ) {
+            final UserDto savedUserDto = userService.createUser( userDto );
+            return ResponseEntity.status( HttpStatus.CREATED ).body( savedUserDto );
+        }
+        else {
+            final UserDto editedUserDto = userService.updateUser( id, userDto );
+            return ResponseEntity.ok( editedUserDto );
+        }
     }
 
     /**
@@ -110,7 +122,7 @@ public class UserController {
      *            the id of the user dto to find
      * @return a user dto
      */
-    @PreAuthorize ( "hasRole('ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('ADMIN', 'BARISTA', 'MANAGER')" )
     @GetMapping ( "/{id}" )
     public ResponseEntity<UserDto> getUser ( @PathVariable final long id ) {
         final UserDto userDto = userService.getUserById( id );

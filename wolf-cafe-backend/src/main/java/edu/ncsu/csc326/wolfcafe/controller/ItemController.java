@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc326.wolfcafe.dto.ItemDto;
-import edu.ncsu.csc326.wolfcafe.entity.Item;
-import edu.ncsu.csc326.wolfcafe.repository.ItemRepository;
+import edu.ncsu.csc326.wolfcafe.exception.ResourceNotFoundException;
 import edu.ncsu.csc326.wolfcafe.service.ItemService;
 import lombok.AllArgsConstructor;
 
@@ -31,13 +30,7 @@ import lombok.AllArgsConstructor;
 public class ItemController {
 
     /** Link to ItemService */
-    private final ItemService    itemService;
-
-    /**
-     * Connection to ItemRepository for dealing with the items table in the
-     * database
-     */
-    private final ItemRepository itemRepository;
+    private final ItemService itemService;
 
     /**
      * Adds an item to the list of items. Requires the STAFF role.
@@ -46,16 +39,16 @@ public class ItemController {
      *            item to add
      * @return added item
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @PostMapping
     public ResponseEntity<ItemDto> addItem ( @RequestBody final ItemDto itemDto ) {
-        for ( final Item item : itemRepository.findAll() ) {
-            if ( item.getName().equals( itemDto.getName() ) ) {
-                return new ResponseEntity<>( itemDto, HttpStatus.CONFLICT );
-            }
+        try {
+            final ItemDto savedItem = itemService.addItem( itemDto );
+            return new ResponseEntity<>( savedItem, HttpStatus.CREATED );
         }
-        final ItemDto savedItem = itemService.addItem( itemDto );
-        return new ResponseEntity<>( savedItem, HttpStatus.CREATED );
+        catch ( final IllegalArgumentException e ) {
+            return ResponseEntity.status( HttpStatus.CONFLICT ).body( itemDto );
+        }
     }
 
     /**
@@ -65,11 +58,16 @@ public class ItemController {
      *            item id
      * @return item with the id
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST')" )
     @GetMapping ( "{id}" )
     public ResponseEntity<ItemDto> getItem ( @PathVariable ( "id" ) final Long id ) {
-        final ItemDto item = itemService.getItem( id );
-        return ResponseEntity.ok( item );
+        try {
+            final ItemDto item = itemService.getItem( id );
+            return ResponseEntity.ok( item );
+        }
+        catch ( final ResourceNotFoundException e ) {
+            return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( null );
+        }
     }
 
     /**
@@ -77,7 +75,7 @@ public class ItemController {
      *
      * @return a list of all items
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER', 'BARISTA', 'CUSTOMER', 'GUEST')" )
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAllItems () {
         final List<ItemDto> items = itemService.getAllItems();
@@ -93,12 +91,17 @@ public class ItemController {
      *            information about the item to update
      * @return updated item
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @PutMapping ( "{id}" )
     public ResponseEntity<ItemDto> updateItem ( @PathVariable ( "id" ) final Long id,
             @RequestBody final ItemDto itemDto ) {
-        final ItemDto updatedItem = itemService.updateItem( id, itemDto );
-        return ResponseEntity.ok( updatedItem );
+        try {
+            final ItemDto updatedItem = itemService.updateItem( id, itemDto );
+            return ResponseEntity.ok( updatedItem );
+        }
+        catch ( final ResourceNotFoundException e ) {
+            return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( null );
+        }
     }
 
     /**
@@ -108,10 +111,15 @@ public class ItemController {
      *            item to delete
      * @return response indicating success or failure
      */
-    @PreAuthorize ( "hasAnyRole('MANAGER', 'ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('MANAGER')" )
     @DeleteMapping ( "{id}" )
     public ResponseEntity<String> deleteItem ( @PathVariable ( "id" ) final Long id ) {
-        itemService.deleteItem( id );
-        return ResponseEntity.ok( "Item deleted successfully" );
+        try {
+            itemService.deleteItem( id );
+            return ResponseEntity.ok( "Item deleted successfully" );
+        }
+        catch ( final ResourceNotFoundException e ) {
+            return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( null );
+        }
     }
 }

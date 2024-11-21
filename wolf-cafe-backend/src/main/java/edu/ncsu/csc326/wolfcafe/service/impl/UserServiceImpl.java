@@ -1,9 +1,11 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edu.ncsu.csc326.wolfcafe.dto.UserDto;
@@ -25,16 +27,25 @@ public class UserServiceImpl implements UserService {
      * Connection to the users table in the database
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository  userRepository;
+
+    /**
+     * A Spring tool used to hash passwords
+     */
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser ( final UserDto userDto ) {
-        if ( isDuplicateUsername( userDto.getUsername() ) ) {
+        if ( isDuplicateUsername( userDto.getId(), userDto.getUsername() ) ) {
             throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( userDto.getId(), userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
         }
 
         validateUserDto( userDto );
-
+        userDto.setPassword( passwordEncoder.encode( userDto.getPassword() ) );
         final User user = UserMapper.mapToUser( userDto );
         final User savedUser = userRepository.save( user );
         return UserMapper.mapToUserDto( savedUser );
@@ -47,13 +58,18 @@ public class UserServiceImpl implements UserService {
      *            the dto to be validated
      */
     private void validateUserDto ( final UserDto userDto ) {
+        // Check name validity
+        if ( !userDto.getName().matches( "^[a-zA-Z.\\s\\-']+$" ) ) {
+            throw new IllegalArgumentException( "Invalid name format" );
+        }
+
         // Check username validity
         if ( !userDto.getUsername().matches( "^[a-zA-Z0-9.]+$" ) ) {
             throw new IllegalArgumentException( "Invalid username format" );
         }
 
         // Check email validity
-        if ( !userDto.getEmail().matches( "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$" ) ) {
+        if ( !userDto.getEmail().matches( "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ) ) {
             throw new IllegalArgumentException( "Invalid email format" );
         }
 
@@ -81,10 +97,15 @@ public class UserServiceImpl implements UserService {
 
         final User user = userRepository.findById( id )
                 .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with id " + id ) );
+        if ( isDuplicateUsername( id, userDto.getUsername() ) ) {
+            throw new IllegalArgumentException( "Duplicate username" );
+        }
+        if ( isDuplicateEmail( id, userDto.getEmail() ) ) {
+            throw new IllegalArgumentException( "Duplicate email" );
+        }
         user.setName( userDto.getName() );
         user.setUsername( userDto.getUsername() );
         user.setEmail( userDto.getEmail() );
-        user.setPassword( userDto.getPassword() );
         user.setRole( userDto.getRole() );
 
         final User savedUser = userRepository.save( user );
@@ -110,8 +131,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isDuplicateUsername ( final String userName ) {
-        return userRepository.existsByUsername( userName );
+    public boolean isDuplicateUsername ( final Long userId, final String userName ) {
+        final Optional<User> duplicate = userRepository.findByUsername( userName );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
     }
 
     @Override
@@ -120,8 +142,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow( () -> new ResourceNotFoundException( "User does not exist with email " + userEmail ) );
     }
 
-    // @Override
-    // public boolean isDuplicateEmail ( final String userEmail ) {
-    // return userRepository.existsByEmail( userEmail );
-    // }
+    @Override
+    public boolean isDuplicateEmail ( final Long userId, final String userEmail ) {
+        final Optional<User> duplicate = userRepository.findByEmail( userEmail );
+        return duplicate.isPresent() && !duplicate.get().getId().equals( userId );
+    }
 }

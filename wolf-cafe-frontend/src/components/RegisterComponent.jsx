@@ -125,7 +125,7 @@ const RegisterComponent = () => {
                 </div>
 
                 <div className='form-group mb-3'>
-                  <button className='btn btn-primary' onClick={(e) => handleRegistrationForm(e)}>Submit</button>
+                  <button className='btn btn-primary' onClick={(e) => setMessage({ type: 'none', content: '' }) || handleRegistrationForm(e)}>Submit</button>
                 </div>
               </form>
             </div>
