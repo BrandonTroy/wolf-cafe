@@ -161,7 +161,7 @@ const OrderHistoryComponent = () => {
                       <button className='btn btn-info' onClick={() => setMessage({ type: 'none', content: '' }) || fulfillOrder(order)}>Fulfill</button>
                     }
                     {
-                      (isManagerUser() || isBaristaUser()) && order.status !== "CANCELED" &&
+                      (isManagerUser() || isBaristaUser()) && (order.status === "FULFILLED" || order.status === "PICKEDUP") &&
                       <button className='btn btn-info' disabled>Fulfilled</button>
                     }
                     {/* Customer and Guest Actions */}
