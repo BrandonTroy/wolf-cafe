@@ -26,5 +26,5 @@ public interface OrderService {
 	
 	OrderDto editOrder(OrderDto orderDto, Status status);
 
-	Map<Long, OrderDto> getOrderHistory(Long id);
+	Map<Long, OrderDto> getOrderHistory(String username);
 }

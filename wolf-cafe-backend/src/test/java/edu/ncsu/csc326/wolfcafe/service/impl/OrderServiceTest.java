@@ -1,6 +1,7 @@
 package edu.ncsu.csc326.wolfcafe.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -127,9 +128,9 @@ class OrderServiceTest {
         // only have one order
         // But order history for the manager returns two because they can see
         // all orders
-        final Map<Long, OrderDto> orders = orderService.getOrderHistory( ryanUser.getId() );
-        final Map<Long, OrderDto> orders2 = orderService.getOrderHistory( secondUser.getId() );
-        final Map<Long, OrderDto> orders3 = orderService.getOrderHistory( retrievedManager.getId() );
+        final Map<Long, OrderDto> orders = orderService.getOrderHistory( ryanUser.getUsername() );
+        final Map<Long, OrderDto> orders2 = orderService.getOrderHistory( secondUser.getUsername() );
+        final Map<Long, OrderDto> orders3 = orderService.getOrderHistory( retrievedManager.getUsername() );
         assertEquals( 1, orders.size() );
         assertEquals( 1, orders2.size() );
         assertEquals( 2, orders3.size() );
@@ -159,18 +160,18 @@ class OrderServiceTest {
 
         final InventoryDto inventoryDto = new InventoryDto();
         final Map<Long, Integer> items = new HashMap<>();
-        items.put( savedBread.getId(), 20 );
-        items.put( savedHam.getId(), 20 );
-        items.put( savedCheese.getId(), 20 );
-        items.put( savedTomato.getId(), 20 );
+        items.put( savedBread.getId(), 10 );
+        items.put( savedHam.getId(), 10 );
+        items.put( savedCheese.getId(), 10 );
+        items.put( savedTomato.getId(), 10 );
         inventoryDto.setItemQuantities( items );
         assertEquals( 4, inventoryDto.getItemQuantities().size() );
         inventoryService.addInventory( inventoryDto );
 
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
 
         // Make a customer user
         final UserDto ryan = new UserDto( 4L, "Ryan", "rthinsha", "rthinsha@ncsu.edu", "password", Role.CUSTOMER );
@@ -185,20 +186,42 @@ class OrderServiceTest {
         // UserDto savedBarista = userService.createUser(baristaDto);
         // UserDto retrievedBarista =
         // userService.getUserById(savedBarista.getId());
+        
+        orderService.addOrder(orderDto);
+        assertEquals( 8, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 7, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
 
         final OrderDto updatedDto = orderService.editOrder( orderDto, Status.FULFILLED );
         assertEquals( Status.FULFILLED, updatedDto.getStatus() );
-        assertEquals( 18, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
-        assertEquals( 17, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        assertEquals( 8, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 7, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
 
         final OrderDto pickedUp = orderService.editOrder( orderDto, Status.PICKEDUP );
         assertEquals( Status.PICKEDUP, pickedUp.getStatus() );
-        assertEquals( 18, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
-        assertEquals( 17, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
-        assertEquals( 20, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        assertEquals( 8, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 7, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        
+        final OrderDto orderDto2 = new OrderDto( 12L, itemList, ryanUser.getId(), 12.75, 0.26, 0.9, status, d );
+        
+        orderService.addOrder(orderDto2);
+        assertEquals( 6, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 4, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        
+        orderService.addOrder(orderDto2);
+        assertEquals( 4, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );
+        assertEquals( 1, inventoryService.getInventory().getItemQuantities().get( savedHam.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedCheese.getId() ) );
+        assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedTomato.getId() ) );
+        
+        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(orderDto));
     }
 
 }
