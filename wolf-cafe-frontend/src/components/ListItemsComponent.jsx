@@ -2,18 +2,22 @@ import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { isBaristaUser, isManagerUser, isCustomerUser, isGuestUser } from '../services/AuthService'
 import { getAllItems, deleteItemById } from '../services/ItemService'
+import { getInventory } from '../services/InventoryService'
 import { OrderContext } from '../OrderContext'
 import NotificationPopup from './NotificationPopup'
 
 const ListItemsComponent = () => {
   const [items, setItems] = useState([])
   const [message, setMessage] = useState({ type: "none", content: "" })
-
+  const [inventory, setInventory] = useState([])
   const { order, setOrder } = useContext(OrderContext)
   const navigate = useNavigate()
 
   useEffect(() => {
     listItems()
+    getInventory().then((response) => {
+      setInventory(response.data.itemQuantities);
+    })
   }, [])
 
   function listItems() {
@@ -81,13 +85,17 @@ const ListItemsComponent = () => {
                       isManagerUser() && <button className='btn btn-danger' onClick={() => deleteItem(item.id)} style={{ marginLeft: "10px" }}>Delete</button>
                     }
                     {(isCustomerUser() || isGuestUser()) &&
-                      <button
-                        className='btn btn-primary'
-                        onClick={() => setOrder({ ...order, [item.id]: 1 })}
-                        disabled={Object.keys(order).includes(item.id.toString())}
-                      >
-                        Add to Order
-                      </button>
+                      (inventory[item.id] > 0 ?
+                        <button
+                          className='btn btn-primary'
+                          onClick={() => setOrder({ ...order, [item.id]: 1 })}
+                          disabled={Object.keys(order).includes(item.id.toString())}
+                        >
+                          Add to Order
+                        </button>
+                        :
+                        <div className='text-danger my-1'>Out of stock</div>
+                      )
                     }
                   </td>}
                 </tr>
