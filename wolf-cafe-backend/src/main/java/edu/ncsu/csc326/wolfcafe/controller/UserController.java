@@ -122,7 +122,7 @@ public class UserController {
      *            the id of the user dto to find
      * @return a user dto
      */
-    @PreAuthorize ( "hasRole('ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('ADMIN', 'BARISTA', 'MANAGER')" )
     @GetMapping ( "/{id}" )
     public ResponseEntity<UserDto> getUser ( @PathVariable final long id ) {
         final UserDto userDto = userService.getUserById( id );

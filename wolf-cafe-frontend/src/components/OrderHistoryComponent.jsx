@@ -120,8 +120,8 @@ const OrderHistoryComponent = () => {
   return (
     <div className='container'>
       <br />
-	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
-	  <br />
+      {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+      <br />
       <div className='d-flex justify-content-between align-items-center'>
         <h2 className='text-center mx-auto mb-3'>Past Orders</h2>
       </div>
