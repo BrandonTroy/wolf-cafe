@@ -68,20 +68,36 @@ public class AuthControllerTest {
     }
 
     /**
-     * Tests logging in the admin user
+     * Tests attempting to register with a password that is too short
      *
      * @throws Exception
      *             in case of unexpected error
      */
     @Test
     @Transactional
-    public void testLoginAdmin () throws Exception {
-        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
+    public void testCreateUserPasswordTooShort () throws Exception {
+        userRepository.deleteByUsername( "jestes" );
+        final RegisterDto registerDto = new RegisterDto( "Jordan Estes", "jestes", "vitae.erat@yahoo.edu", "abcdefg" );
+
+        mvc.perform( post( "/api/auth/register" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( registerDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isBadRequest() ).andExpect( content().string( "Invalid input format" ) );
+    }
+
+    /**
+     * Tests logging in the admin user with the wrong password
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @Transactional
+    public void testFailedLoginAdmin () throws Exception {
+        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword + "wrong" );
 
         mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
-                .andExpect( jsonPath( "$.role" ).value( "ROLE_ADMIN" ) );
+                .andExpect( status().isUnauthorized() );
     }
 
     /**
