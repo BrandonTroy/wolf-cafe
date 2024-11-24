@@ -37,7 +37,7 @@ public class TaxServiceImpl implements TaxService {
     @Override
     public void setTaxRate ( double taxRate ) {
         // Throw an error for if invalid tax rate is given
-        if ( taxRate <= 0 || taxRate > 50 ) {
+        if ( taxRate < 0 || taxRate > 50 ) {
             throw new IllegalArgumentException( "Invalid tax rate" );
         }
 
