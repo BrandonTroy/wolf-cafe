@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const PriceInput = ({ 
-  value, 
-  onChange, 
+const PriceInput = ({
+  value,
+  onChange,
   disabled = false,
   style = {},
   min = 0,

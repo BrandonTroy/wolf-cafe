@@ -38,19 +38,20 @@ public class TestUtils {
         return gson.toJson( obj );
     }
 
-    /**
-     * This test is here to ensure the admin user is deleted before the system
-     * starts for the login test so that we get coverage on the creation of the
-     * admin user.
-     */
+    // /**
+    // * This test is here to ensure the admin user is deleted before the system
+    // * starts for the login test so that we get coverage on the creation of
+    // the
+    // * admin user.
+    // */
     // @Test
     // public void deleteAdmin () {
-    //     Optional<User> admin = userRepository.findByUsername( "admin" );
-    //     if ( admin.isPresent() ) {
-    //         userRepository.delete( admin.get() );
-    //     }
-    //     admin = userRepository.findByUsername( "admin" );
-    //     assertTrue( admin.isEmpty() );
+    // Optional<User> admin = userRepository.findByUsername( "admin" );
+    // if ( admin.isPresent() ) {
+    // userRepository.delete( admin.get() );
+    // }
+    // admin = userRepository.findByUsername( "admin" );
+    // assertTrue( admin.isEmpty() );
     // }
 
 }

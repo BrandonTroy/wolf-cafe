@@ -32,7 +32,10 @@ public class SpringSecurityConfig {
     /** Filters for authentication */
     private JwtAuthenticationFilter authenticationFilter;
 
-    /** Encodes passwords */
+    /** 
+     * Encodes passwords
+     * @return the encoded password
+     */
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

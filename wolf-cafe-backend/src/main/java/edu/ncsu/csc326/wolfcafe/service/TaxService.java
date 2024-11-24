@@ -8,9 +8,8 @@ package edu.ncsu.csc326.wolfcafe.service;
  */
 public interface TaxService {
     /**
-     *
-     * @param taxRate
-     * @return set the tax rate to the given value
+     * Sets the tax rate to the passed in tax value
+     * @param taxRate the tax rate set for the whole system
      */
     void setTaxRate ( double taxRate );
 

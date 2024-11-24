@@ -30,7 +30,9 @@ import edu.ncsu.csc326.wolfcafe.service.UserService;
 import lombok.AllArgsConstructor;
 
 /**
- * MakeItemController provides the endpoint for ordering a item.
+ * Provides the end point for ordering, updating, or retrieving Orders.
+ * 
+ * @author Ryan Hinshaw
  */
 @RestController
 @AllArgsConstructor
@@ -54,25 +56,8 @@ public class OrderController {
     @Autowired
     private final UserService  userService;
 
-    // public ResponseEntity<UserDto> createUser(@RequestBody final UserDto
-    // userDto,
-    // @AuthenticationPrincipal UserDetails requester) throws
-    // NoSuchAlgorithmException {
-    //
-    // Role role =
-    // userService.getUserByUsername(requester.getUsername()).getRole();
-    //
-    // if (role == Role.BARISTA || role == Role.MANAGER) {
-    // System.out.println("Action for staff");
-    // } else {
-    // System.out.println("Action for customers");
-    // }
-    //
-    // return null;
-    // }
-
     /**
-     * REST API method to create a new order
+     * REST API method to create and place a new order
      *
      * @param orderDto
      *            dto containing the list of items in the order and the tip
@@ -84,9 +69,6 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderDto> addOrder ( @AuthenticationPrincipal final UserDetails requester,
             @RequestBody final OrderDto orderDto ) {
-        // if ( orderDto.getId() == null ) {
-        // return ResponseEntity.status( HttpStatus.CONFLICT ).build();
-        // }
         final Long userId = userService.getUserByUsername( requester.getUsername() ).getId();
         double price = 0;
         for ( final Entry<Long, Integer> item : orderDto.getItemList().entrySet() ) {
@@ -143,8 +125,7 @@ public class OrderController {
             @PathVariable ( "id" ) final Long id, @RequestBody final OrderDto orderDto ) {
 
         final Role role = userService.getUserByUsername(requester.getUsername()).getRole();
-        
-        // TODO: this logic is kind of unnecessary now since the status is set in the dto
+
         if ( orderDto.getStatus() == Status.CANCELED ) {
             final OrderDto updatedOrderDto = orderService.editOrder( orderDto, Status.CANCELED );
             return ResponseEntity.ok( updatedOrderDto );

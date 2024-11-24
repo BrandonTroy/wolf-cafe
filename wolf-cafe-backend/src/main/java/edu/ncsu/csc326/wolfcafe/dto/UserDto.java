@@ -16,17 +16,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-	// User id
+	/** The unique id of the User */
 	private Long id;
-	// User name
+	/** The name of the User */
 	private String name;
-	// Username
+	/** The unique username of the User */
 	private String username;
-	// User email
+	/** The email of the User */
 	private String email;
-	// User password
+	/** The password of the User */
 	private String password;
-	// User role
+	/** The Role of the User */
 	private Role role;
 
 	/**

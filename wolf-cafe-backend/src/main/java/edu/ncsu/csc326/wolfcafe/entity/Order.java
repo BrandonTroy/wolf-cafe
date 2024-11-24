@@ -17,6 +17,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * System Order
+ * 
+ * @author Ryan Hinshaw (rthinsha)
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -24,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Table ( name = "orders" )
 public class Order {
 
+	/** Unique Id for the Order */
     @Id
     @GeneratedValue ( strategy = GenerationType.IDENTITY )
     private Long               id;
@@ -35,38 +41,36 @@ public class Order {
     @Column ( name = "item_amount" )
     private Map<Long, Integer> itemList;
 
+    /** The Customer Id for the Customer who placed this Order */
     @Column ( nullable = false )
     private Long               customerId;
 
+    /** The price of the Order */
     @Column ( nullable = false )
     private double             price;
 
+    /** The tax for the Order */
     @Column ( nullable = false )
     private double             tax;
 
+    /** The tip for the Order */
     @Column
     private double             tip;
 
+    /** The status of the Order, starts as placed, then fulfilled, then picked up, but can 
+     * be cancelled at any time */
     @Column ( nullable = false )
     private Status             status;
 
+    /** The time and date of the Order */
     @Column ( nullable = false )
     private String             date;
 
-    // private InventoryRepository inventoryRepository;
-
-    // private double calculateTotalPrice() {
-    // double total = 0.0;
-    // for (Entry<Long, Integer> itemEntry : itemList.entrySet()) {
-    // Long id = itemEntry.getKey();
-    // Optional<InventoryEntry> item = inventoryRepository.findByItemId(id);
-    // double itemPrice = item.get().getItem().getPrice();
-    // total += itemPrice;
-    // }
-    // total = total + tip;
-    // return total;
-    // }
-
+    /**
+     * Changing the status of the Order, from placed to fulfilled, fulfilled to picked up, 
+     * or any of them to cancelled.
+     * @param status the status to change the Order to
+     */
     public void setStatus ( final Status status ) {
         this.status = status;
     }

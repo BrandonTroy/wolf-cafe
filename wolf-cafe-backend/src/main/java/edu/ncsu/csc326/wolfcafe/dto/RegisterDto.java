@@ -13,8 +13,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterDto {
+    
+    /** The name of the customer/guest being registered in the system */
     private String name;
+    
+    /** The username of the customer/guest being registered in the system */
     private String username;
+    
+    /** The email of the customer/guest being registered in the system */
     private String email;
+    
+    /** The password of the customer/guest being registered in the system */
     private String password;
 }

@@ -23,6 +23,9 @@ import edu.ncsu.csc326.wolfcafe.security.JwtTokenProvider;
 import edu.ncsu.csc326.wolfcafe.service.AuthService;
 import lombok.AllArgsConstructor;
 
+// GENERATIVE AI WAS USED
+// Generated using ChatGPT
+// Prompt: ask for a fix for create guest user function formatting
 /**
  * Implemented AuthService
  */
@@ -128,10 +131,8 @@ public class AuthServiceImpl implements AuthService {
         // Get the current user count from the repository
         final long userCount = userRepository.count(); // Get the count of users
 
-        // Generate a new guest username based on the count
-        final String guestUsername = "guest-" + ( userCount + 1 ); // Create a
-                                                                   // unique
-                                                                   // username
+        // Generate a new unique guest username based on the count
+        final String guestUsername = "<guest-" + ( userCount + 1 ) + ">";
 
         // Create a new user entity for the guest
         final User newUser = new User();

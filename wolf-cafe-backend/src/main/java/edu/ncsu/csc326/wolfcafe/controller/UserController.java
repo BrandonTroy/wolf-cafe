@@ -58,20 +58,17 @@ public class UserController {
      * @param userDto
      *            the user dto
      * @return an updated user dto
-     * @throws NoSuchAlgorithmException
-     *             should never actually throw this because password is not
-     *             hashed during an update since password is not editable
      */
     @PreAuthorize ( "hasRole('ADMIN')" )
     @PutMapping ( "/{id}" )
     public ResponseEntity<UserDto> updateUser ( @PathVariable ( "id" ) final long id,
-            @RequestBody final UserDto userDto ) throws NoSuchAlgorithmException {
+            @RequestBody final UserDto userDto ) {
         return validate( "update", id, userDto );
     }
 
     /**
      * Validates the user dto
-     * 
+     *
      * @param action
      *            the action to take
      * @param id
@@ -79,10 +76,8 @@ public class UserController {
      * @param userDto
      *            the user dto
      * @return a ResponseEntity of the user dto
-     * @throws NoSuchAlgorithmException
      */
-    private ResponseEntity<UserDto> validate ( final String action, final Long id, final UserDto userDto )
-            throws NoSuchAlgorithmException {
+    private ResponseEntity<UserDto> validate ( final String action, final Long id, final UserDto userDto ) {
         if ( userService.isDuplicateUsername( id, userDto.getUsername() )
                 || userService.isDuplicateEmail( id, userDto.getEmail() ) ) {
             System.err.println( "Duplicate username" );

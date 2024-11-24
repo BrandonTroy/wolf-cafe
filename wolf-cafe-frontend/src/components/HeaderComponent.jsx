@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom'
 import { isUserAuthenticated, isAdminUser, isBaristaUser, isManagerUser, isCustomerUser, isGuestUser, logout } from '../services/AuthService'
 
 const HeaderComponent = () => {
-	
+
   const isAuth = isUserAuthenticated()
   const isLoggedIn = isAuth && !isGuestUser()
 
-	function handleLogout() {
-	  logout()
-	  navigator('/login')
-	}
+  function handleLogout() {
+    logout()
+    navigator('/login')
+  }
 
   const navigator = useNavigate()
 
@@ -42,7 +42,7 @@ const HeaderComponent = () => {
                     <NavLink to='/order' className='nav-link'>Order</NavLink>
                   </li>
                 }
-				{(!isAdminUser()) &&
+                {(!isAdminUser()) &&
                   <li className='nav-item'>
                     <NavLink to='/orders' className='nav-link'>Order History</NavLink>
                   </li>
@@ -60,11 +60,11 @@ const HeaderComponent = () => {
                   </li>
                 }
               </ul>
-            } 
+            }
           </div>
           <ul className='navbar-nav'>
             {
-              !isLoggedIn && 
+              !isLoggedIn &&
               <li className='nav-item'>
                 <NavLink to='/register' className='nav-link'>Register</NavLink>
               </li>
@@ -74,13 +74,13 @@ const HeaderComponent = () => {
               <li className='nav-item'>
                 <NavLink to='/login' className='nav-link'>Login</NavLink>
               </li>
-            } 
+            }
             {
               isLoggedIn &&
               <li className='nav-item'>
                 <NavLink to='/login' className='nav-link' onClick={handleLogout}>Logout</NavLink>
               </li>
-            }   
+            }
           </ul>
         </nav>
       </header>

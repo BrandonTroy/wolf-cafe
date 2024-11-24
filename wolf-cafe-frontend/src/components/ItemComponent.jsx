@@ -10,19 +10,19 @@ const ItemComponent = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
-  const [message, setMessage] = useState({type: "none", content:""})
+  const [message, setMessage] = useState({ type: "none", content: "" })
 
   const { id } = useParams()
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    if(id) {
+    if (id) {
       getItemById(id).then((response) => {
         console.log(response.data)
         setName(response.data.name)
         setDescription(response.data.description)
-				setPrice(response.data.price)
+        setPrice(response.data.price)
       }).catch(error => {
         console.error(error)
       })
@@ -31,7 +31,7 @@ const ItemComponent = () => {
 
   function saveOrUpdateItem(e) {
     e.preventDefault()
-    const item = {name, description, price}
+    const item = { name, description, price }
     console.log(item)
 
     if (id) {
@@ -39,11 +39,11 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
-		if (error.status === 409) {
-		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
-		} else {
-		  setMessage({type:"error", content: "Could not update item. Check your connection."});
-		}
+        if (error.status === 409) {
+          setMessage({ type: "error", content: "Item already exists. Please choose a new name." })
+        } else {
+          setMessage({ type: "error", content: "Could not update item. Check your connection." });
+        }
         console.error(error)
       })
     } else {
@@ -51,11 +51,11 @@ const ItemComponent = () => {
         console.log(response.data)
         navigate('/items')
       }).catch(error => {
-		if (error.status === 409) {
-		  setMessage({type:"error", content: "Item already exists. Please choose a new name."})
-		} else {
-		  setMessage({type:"error", content: "Could not create item. Check your connection."});
-		}
+        if (error.status === 409) {
+          setMessage({ type: "error", content: "Item already exists. Please choose a new name." })
+        } else {
+          setMessage({ type: "error", content: "Could not create item. Check your connection." });
+        }
         console.error(error)
       })
     }
@@ -72,17 +72,17 @@ const ItemComponent = () => {
   return (
     <div className='container'>
       <br />
-	  {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
+      {message.type != "none" && <NotificationPopup type={message.type} content={message.content} setParentMessage={setMessage} />}
       <br />
       <div className='row'>
         <div className='card col-md-6 offset-md-3 offset-md-3'>
-          { pageTitle() }
-          
+          {pageTitle()}
+
           <div className='card-body'>
             <form onSubmit={(e) => saveOrUpdateItem(e)}>
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Name:</label>
-                <input 
+                <input
                   type='text'
                   className='form-control'
                   placeholder='Enter Item Name'
@@ -96,7 +96,7 @@ const ItemComponent = () => {
 
               <div className='form-group mb-2'>
                 <label className='form-label'>Item Description:</label>
-                <input 
+                <input
                   type='text'
                   className='form-control'
                   placeholder='Enter Item Description'

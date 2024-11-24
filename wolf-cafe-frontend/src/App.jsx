@@ -19,7 +19,7 @@ function App() {
 
   function AuthenticatedRoute({ roleCheck = true, children }) {
     const navigate = useNavigate()
-    
+
     if (!isUserAuthenticated()) return <LoginComponent />
     if (!roleCheck) return (
       <div className='my-5'>
@@ -28,7 +28,7 @@ function App() {
         <button className='btn btn-secondary mx-2' onClick={() => navigate('/login')}>Return to Login</button>
       </div>
     )
-    
+
     return children
   }
 
@@ -43,23 +43,23 @@ function App() {
   return (
     <OrderProvider>
       <BrowserRouter>
-	    <HeaderComponent />
-	    <Routes>
-        <Route path='/' element={<AuthenticatedRoute><HomeRoute /></AuthenticatedRoute>} />
-        <Route path='/register' element={<RegisterComponent />} />
-        <Route path='/login' element={<LoginComponent />} />
-        <Route path='/items' element={<AuthenticatedRoute roleCheck={!isAdminUser()}><ListItemsComponent /></AuthenticatedRoute>} />
-        <Route path='/add-item' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
-        <Route path='/update-item/:id' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
-        <Route path='/inventory' element={<AuthenticatedRoute roleCheck={isManagerUser() || isBaristaUser()}><InventoryComponent /></AuthenticatedRoute>} />
-        <Route path='/order' element={<AuthenticatedRoute roleCheck={isCustomerUser() || isGuestUser()}><OrderComponent /></AuthenticatedRoute>} />
-		<Route path='/orders' element={<AuthenticatedRoute roleCheck={!isAdminUser()}><OrderHistoryComponent /></AuthenticatedRoute>} />
-		<Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
-		<Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
-		<Route path='/update-user/:id' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
-        <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><TaxComponent /></AuthenticatedRoute>} />
-      </Routes>
-      <FooterComponent />
+        <HeaderComponent />
+        <Routes>
+          <Route path='/' element={<AuthenticatedRoute><HomeRoute /></AuthenticatedRoute>} />
+          <Route path='/register' element={<RegisterComponent />} />
+          <Route path='/login' element={<LoginComponent />} />
+          <Route path='/items' element={<AuthenticatedRoute roleCheck={!isAdminUser()}><ListItemsComponent /></AuthenticatedRoute>} />
+          <Route path='/add-item' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
+          <Route path='/update-item/:id' element={<AuthenticatedRoute roleCheck={isManagerUser()}><ItemComponent /></AuthenticatedRoute>} />
+          <Route path='/inventory' element={<AuthenticatedRoute roleCheck={isManagerUser() || isBaristaUser()}><InventoryComponent /></AuthenticatedRoute>} />
+          <Route path='/order' element={<AuthenticatedRoute roleCheck={isCustomerUser() || isGuestUser()}><OrderComponent /></AuthenticatedRoute>} />
+          <Route path='/orders' element={<AuthenticatedRoute roleCheck={!isAdminUser()}><OrderHistoryComponent /></AuthenticatedRoute>} />
+          <Route path='/users' element={<AuthenticatedRoute roleCheck={isAdminUser()}><ListUsersComponent /></AuthenticatedRoute>} />
+          <Route path='/add-user' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
+          <Route path='/update-user/:id' element={<AuthenticatedRoute roleCheck={isAdminUser()}><UserComponent /></AuthenticatedRoute>} />
+          <Route path='/tax' element={<AuthenticatedRoute roleCheck={isAdminUser()}><TaxComponent /></AuthenticatedRoute>} />
+        </Routes>
+        <FooterComponent />
       </BrowserRouter>
     </OrderProvider>
   )
