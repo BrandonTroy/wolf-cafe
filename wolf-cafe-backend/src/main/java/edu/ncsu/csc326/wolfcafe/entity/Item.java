@@ -22,12 +22,19 @@ import lombok.Setter;
 @Table(name = "items")
 public class Item {
 
+    /** The unique id of the Item */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    /** The name of the Item */
     @Column(nullable = false, unique = true)
     private String name;
+    
+    /** The description of the Item */
     private String description;
+    
+    /** The price of one of these Items */
     @Column(nullable = false)
     private double price;
 }

@@ -14,7 +14,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginDto {
 
+    /** The username of email of the user logging in */
     private String usernameOrEmail;
+    
+    /** The password of the user logging in */
     private String password;
 
 }

@@ -21,9 +21,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tax {
+    
+    /** The unique id of the tax */
     @Id
     private Long   id;
 
+    /** The actually value for tax rate for the system */
     @Column ( nullable = false )
     private double taxRate;
 }

@@ -14,7 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JwtAuthResponse {
 
+    /** The unique access token generated during authorization */
     private String accessToken;
+    
+    /** The type of token generated during authorization */
     private String tokenType = "Bearer";
+    
+    /** The  Role of the user authorizing as a string */
     private String role;
 }
