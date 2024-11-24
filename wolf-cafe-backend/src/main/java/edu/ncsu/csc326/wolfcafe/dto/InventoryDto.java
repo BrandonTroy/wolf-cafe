@@ -11,5 +11,7 @@ import lombok.Data;
  */
 @Data
 public class InventoryDto {
+    
+    /** The map of items and counts for each item, mapping item id to count of item */
     private Map<Long, Integer> itemQuantities = new HashMap<>();
 }

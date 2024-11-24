@@ -27,15 +27,18 @@ public class User {
     @Id
     @GeneratedValue ( strategy = GenerationType.IDENTITY )
     private Long   id;
+    
     /** user's name */
     private String name;
+    
     /** unique username for login */
-
     @Column ( nullable = false, unique = true )
     private String username;
+    
     /** user's email */
     @Column ( nullable = false, unique = true )
     private String email;
+    
     /** user's password for login */
     @Column ( nullable = false )
     private String password;

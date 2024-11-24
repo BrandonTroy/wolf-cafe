@@ -46,11 +46,9 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Generates the token for guest user
-     *
-     * @param authentication
-     *            authentication object
-     * @return the generated token
+     * Generates a unique token for the guest users
+     * @param guestUser the guest user to generate a token for
+     * @return The unique token string for the guest user
      */
     public String generateTokenGuest ( User guestUser ) {
         String username = guestUser.getUsername();
