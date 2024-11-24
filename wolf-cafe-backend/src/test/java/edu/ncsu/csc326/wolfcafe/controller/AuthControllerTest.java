@@ -67,22 +67,22 @@ public class AuthControllerTest {
                 .andExpect( status().isCreated() ).andExpect( content().string( "User registered successfully." ) );
     }
 
-//    /**
-//     * Tests logging in the admin user
-//     *
-//     * @throws Exception
-//     *             in case of unexpected error
-//     */
-//    @Test
-//    @Transactional
-//    public void testLoginAdmin () throws Exception {
-//        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
-//
-//        mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
-//                .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
-//                .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
-//                .andExpect( jsonPath( "$.role" ).value( "ROLE_ADMIN" ) );
-//    }
+    /**
+     * Tests logging in the admin user
+     *
+     * @throws Exception
+     *             in case of unexpected error
+     */
+    @Test
+    @Transactional
+    public void testLoginAdmin () throws Exception {
+        final LoginDto loginDto = new LoginDto( "admin", adminUserPassword );
+
+        mvc.perform( post( "/api/auth/login" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( loginDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() ).andExpect( jsonPath( "$.tokenType" ).value( "Bearer" ) )
+                .andExpect( jsonPath( "$.role" ).value( "ROLE_ADMIN" ) );
+    }
 
     /**
      * Tests logging in the admin user

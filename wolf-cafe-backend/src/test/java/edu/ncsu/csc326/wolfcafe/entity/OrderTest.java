@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import edu.ncsu.csc326.wolfcafe.dto.OrderDto;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class OrderTest {
@@ -41,5 +43,9 @@ class OrderTest {
 
         order.setStatus( Status.FULFILLED );
         assertEquals( Status.FULFILLED, order.getStatus() );
+        
+        OrderDto orderDto = new OrderDto(itemList, 0.4);
+        assertEquals(2, orderDto.getItemList().size());
+        assertEquals(0.4, orderDto.getTip());
     }
 }

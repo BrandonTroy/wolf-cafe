@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,15 +83,6 @@ class OrderControllerTest {
 		userRepository.deleteAll();
 	}
 
-    // /**
-    // * Api endpoint under test
-    // */
-    // private static final String API_PATH = "/api/orders";
-    // /**
-    // * Encoding for performing api calls
-    // */
-    // private static final String ENCODING = "utf-8";
-
     @Test
     @Transactional
     @WithMockUser ( username = "rthinsha", roles = "CUSTOMER" )
@@ -106,8 +96,8 @@ class OrderControllerTest {
 
         final InventoryDto inventoryDto = new InventoryDto();
         final Map<Long, Integer> items = new HashMap<>();
-        items.put( savedBread.getId(), 20 );
-        items.put( savedHam.getId(), 20 );
+        items.put( savedBread.getId(), 5 );
+        items.put( savedHam.getId(), 5 );
         inventoryDto.setItemQuantities( items );
         assertEquals( 2, inventoryDto.getItemQuantities().size() );
         inventoryService.addInventory( inventoryDto );
@@ -129,6 +119,11 @@ class OrderControllerTest {
         mvc.perform( post( "/api/orders" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( orderDto ) ).accept( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isCreated() );
+        
+        //Error testing for trying to place insufficient inventory
+        mvc.perform( post( "/api/orders" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( orderDto ) ).accept( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isConflict() );
 
         // GET for orders should return all the orders available to the user
         // with that specified id
@@ -143,20 +138,20 @@ class OrderControllerTest {
         orderDto.setStatus(Status.FULFILLED);
         Long orderId = orderRepository.findAll().get(0).getId();
         
+        //Customers can pick up fulfilled orders
         final String update = mvc.perform(put("/api/orders/{id}", orderId)
 				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(orderDto))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-				// .andExpect(jsonPath("$.id").value(orderId)).andReturn().getResponse().getContentAsString();
         assertTrue(update.contains("" + Status.PICKEDUP));
         
+      //Customers can cancel orders
+        orderDto.setStatus(Status.CANCELED);
         
-//		mvc.perform(put("/api/users/{id}", userRepository.findByUsername("knandak").get().getId())
-//				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(userDto))
-//				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-//				.andExpect(jsonPath("$.name").value("Karthik Nandakumar"))
+        final String updateCanceled = mvc.perform(put("/api/orders/{id}", orderId)
+				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(orderDto))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertTrue(updateCanceled.contains("" + Status.CANCELED));
         
-        
-//        OrderDto orderDto2 = new OrderDto( 2L, items, secondUser.getId(), 12.75, 0.26, 0.9, Status.PLACED, d);
     }
     
     @Test
@@ -188,7 +183,7 @@ class OrderControllerTest {
         itemList.put( savedHam.getId(), 3 );
         
         // Make a second customer user
-        final UserDto second = new UserDto( 5L, "Second", "suser2", "second@ncsu.edu", "password2", Role.CUSTOMER );
+        final UserDto second = new UserDto( 5L, "Second", "suser2", "second@ncsu.edu", "password2", Role.GUEST );
         final UserDto savedUser2 = userService.createUser( second );
         final UserDto secondUser = userService.getUserById( savedUser2.getId() );
 
@@ -204,7 +199,15 @@ class OrderControllerTest {
                 .andReturn().getResponse().getContentAsString();
         assertTrue( orders.contains("" + savedBread.getId()));
         assertTrue(orders.contains("" + orderDto2.getCustomerId()));
-        assertFalse(orders.contains("" + userRepository.findByUsername("rthinsha")));
+        
+        orderDto2.setStatus(Status.FULFILLED);
+        Long orderId = orderRepository.findAll().get(0).getId();
+        
+        //Customers can pick up fulfilled orders
+        final String update = mvc.perform(put("/api/orders/{id}", orderId)
+				.contentType(MediaType.APPLICATION_JSON).content(TestUtils.asJsonString(orderDto2))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertTrue(update.contains("" + Status.PICKEDUP));
     }
     
     @Test
@@ -265,5 +268,4 @@ class OrderControllerTest {
 	public void cleanUp() throws Exception {
 		userRepository.deleteAll();
 	}
-
 }

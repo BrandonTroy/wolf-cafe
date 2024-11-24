@@ -134,6 +134,9 @@ class OrderServiceTest {
         assertEquals( 1, orders.size() );
         assertEquals( 1, orders2.size() );
         assertEquals( 2, orders3.size() );
+        
+        final OrderDto orderError = new OrderDto( 4L, itemList, ryanUser.getId(), 12.75, 0.26, 0.9, Status.FULFILLED, d );
+        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(orderError));
     }
 
     @Test
@@ -165,7 +168,6 @@ class OrderServiceTest {
         items.put( savedCheese.getId(), 10 );
         items.put( savedTomato.getId(), 10 );
         inventoryDto.setItemQuantities( items );
-        assertEquals( 4, inventoryDto.getItemQuantities().size() );
         inventoryService.addInventory( inventoryDto );
 
         assertEquals( 10, inventoryService.getInventory().getItemQuantities().get( savedBread.getId() ) );

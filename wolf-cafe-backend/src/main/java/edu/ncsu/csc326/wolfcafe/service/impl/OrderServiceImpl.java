@@ -27,22 +27,38 @@ import edu.ncsu.csc326.wolfcafe.service.OrderService;
 
 /**
  * Interface defining the ordering behaviors.
+ * 
+ * @author Ryan Hinshaw (rthinsha)
  */
 @Service
 public class OrderServiceImpl implements OrderService {
 
+	/** Instance of InventoryService to get check if there's enough items */
     @Autowired
     private InventoryService          inventoryService;
 
+    /** 
+     * Connection to the repository of orders so that they can be placed, updated, 
+     * or retrieved 
+     */
     @Autowired
     private OrderRepository           orderRepository;
 
+    /** Connection to repository of users to check for usernames and roles */
     @Autowired
     private UserRepository            userRepository;
 
+    /** Connection to repository of inventory entries to update the counts of each item */
     @Autowired
     private InventoryRepository       inventoryRepository;
 
+    /**
+	 * Adds an Order to the database of Orders, so long as the Inventory has enough Items 
+	 * to possibly fulfill the Order. 
+	 * @param orderDto The Order to be added to the database of Orders and subtract from 
+	 * the Inventory
+	 * @return The orderDto if successfully added, and throws an IllegalArgumentException if not
+	 */
     @Override
     public OrderDto addOrder ( final OrderDto orderDto ) {
         if ( !enoughIngredients( orderDto ) ) {
@@ -59,6 +75,13 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.mapToOrderDto( savedOrder );
     }
 
+    /**
+	 * Updates the OrderDto passed in as a parameter and in the database to the status passed in. 
+	 * Used when staff members fulfill and order and customers pickup or cancel an order.
+	 * @param orderDto The Order to be updated
+	 * @param status The status to update the Order to
+	 * @return The updated Order
+	 */
     @Override
     public OrderDto editOrder ( final OrderDto orderDto, final Status status ) {
         if ( orderDto.getStatus() == Status.PLACED && status == Status.FULFILLED) {
@@ -78,6 +101,14 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.mapToOrderDto( savedOrder );
     }
 
+    /**
+	 * Returns the history of Orders in the database, but is dependent on the user who calls 
+	 * this method. Staff members can see every Order in the system, while customers (and guests) 
+	 * can only see their orders. Since usernames are unique, they're verified against the 
+	 * user repository
+	 * @param username The username of the user calling this method 
+	 * @return The Order History appropriate to the role of the caller
+	 */
     @Override
     public Map<Long, OrderDto> getOrderHistory ( final String username ) {
         final Optional<User> user = userRepository.findByUsername( username );
@@ -102,6 +133,12 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    /**
+     * Private helper method to determine if the Inventory has enough of the necessary 
+     * Items to place the passed in Order
+     * @param orderDto The Order to check if there's enough items to place
+     * @return True if enough, false otherwise
+     */
     private boolean enoughIngredients ( final OrderDto orderDto ) {
         final InventoryDto inventoryDto = inventoryService.getInventory();
         final Map<Long, Integer> itemQuantities = inventoryDto.getItemQuantities();
@@ -113,6 +150,10 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    /**
+     * Private method that "places" an Order by removing the necessary counts from the Inventory
+     * @param orderDto The Order to place and update the Inventory
+     */
     private void placeOrder ( final OrderDto orderDto ) {
         final InventoryDto inventoryDto = inventoryService.getInventory();
         final Map<Long, Integer> itemQuantities = inventoryDto.getItemQuantities();
