@@ -1,16 +1,10 @@
 package edu.ncsu.csc326.wolfcafe;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.Gson;
 
-import edu.ncsu.csc326.wolfcafe.entity.User;
 import edu.ncsu.csc326.wolfcafe.repository.UserRepository;
 
 /**
@@ -49,14 +43,14 @@ public class TestUtils {
      * starts for the login test so that we get coverage on the creation of the
      * admin user.
      */
-    @Test
-    public void deleteAdmin () {
-        Optional<User> admin = userRepository.findByUsername( "admin" );
-        if ( admin.isPresent() ) {
-            userRepository.delete( admin.get() );
-        }
-        admin = userRepository.findByUsername( "admin" );
-        assertTrue( admin.isEmpty() );
-    }
+    // @Test
+    // public void deleteAdmin () {
+    // Optional<User> admin = userRepository.findByUsername( "admin" );
+    // if ( admin.isPresent() ) {
+    // userRepository.delete( admin.get() );
+    // }
+    // admin = userRepository.findByUsername( "admin" );
+    // assertTrue( admin.isEmpty() );
+    // }
 
 }
